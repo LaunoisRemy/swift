@@ -128,7 +128,7 @@ protocol Jeu {
 protocol Joueur {
 
     //init : String -> Joueur 
-    // Fonction de création du joueur a partir de sa couleur qui est différente des autres joueurs 
+    // Fonction de création du joueur a partir de sa couleur qui est différente de l'autre joueur 
     // Postcondition : Initialise sa couleur qui ne change pas et ses 8 pièces composées de  2 carré , 2 cylindre , 2 cercle, 2 triangle et pas d'autres.
     // Postcondition : Toutes les pièces sont aussi de la même couleur que le joueur. 
     init(couleur : String)

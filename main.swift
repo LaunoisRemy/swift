@@ -82,7 +82,7 @@ while !estFini {
 	while (!aJoue){
 		// Affichage du joueur courant et de ses pièces restantes
 		print("Le joueur : " , jeu.jCourant.couleur ," place sa pièce " )
-		for ( p in jeu.jCourant.PieceRestantes) {
+		for p in jeu.jCourant.PieceRestantes {
 			print (" Les pièces disponibles sont : ", p.nom)
 		}
 		
@@ -92,27 +92,29 @@ while !estFini {
 		print("Quel pièce voulez-vous choisir ? (ce : Cercle - ca : Carre - cy : Cylindre - tr : Triangle")
 		var pieceOk : Bool = false
 
+
 		var pieceString : String = ""
+		var piece : Piece
 		//Boucle qui vérifie si le string en entrée (readLine) est correct 
 		while(!pieceOk){
 			if let _piece = readLine() {
 				
 				let _piece = _piece.lowercased()
 				if( _piece == "ca" || _piece == "ce" || _piece == "cy" || _piece == "tr"){
-					pieceOk = true
+					//pieceOk = true
 					pieceString  = _piece
+
+					if jeu.jCourant.PieceDispo(nom : pieceString) { // SI la piece appartient au joueur
+						 piece = jeu.jCourant.stringToPiece(nom : pieceString )
+						 pieceOk = true
+					}
 				}			
-			}else {
+			}else { 
 	    		print(" Le nom de la piece doit être ca,ce,cy ou tr. veuillez retaper : ")
 	    	}
 		}
 		
-		//TODO
-		if(stringToPiece(nom : pieceString)){
-			let piece : Piece = jCourant.stringToPiece(nom : pieceString )
-		}else {
 
-		}
 		
 
 		// Choix de la coordonnée x

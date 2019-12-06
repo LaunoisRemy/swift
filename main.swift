@@ -82,7 +82,10 @@ while !estFini {
 	while (!aJoue){
 		// Affichage du joueur courant et de ses pièces restantes
 		print("Le joueur : " , jeu.jCourant.couleur ," place sa pièce " )
-		print (" Les pièces disponibles sont : ", jeu.jCourant.PieceRestantes)
+		for ( p in jeu.jCourant.PieceRestantes) {
+			print (" Les pièces disponibles sont : ", p.nom)
+		}
+		
 
 
 		// Choix de la pièce
@@ -103,7 +106,14 @@ while !estFini {
 	    		print(" Le nom de la piece doit être ca,ce,cy ou tr. veuillez retaper : ")
 	    	}
 		}
-		let piece : Piece = jeu.stringToPiece(nom : pieceString )
+		
+		//TODO
+		if(stringToPiece(nom : pieceString)){
+			let piece : Piece = jCourant.stringToPiece(nom : pieceString )
+		}else {
+
+		}
+		
 
 		// Choix de la coordonnée x
 		print("Coordonnées x : ")

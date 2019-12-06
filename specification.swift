@@ -76,7 +76,7 @@ protocol Jeu {
     // Résultat : Renvoie le jeu modifié avec une nouvelle pièce posée sur le plateau
     // et le nombre de pièces du joueur réduite d'une. 
     // Postcondition : Retire la piece au joueur ( retirerPiece(p : p))
-    mutating func Placer(inout j : Joueur, p : Piece, x : Int, y : Int) 
+    mutating func Placer( j : inout Joueur, p : Piece, x : Int, y : Int) 
 
     // LigneRemplie : Jeu x Int  -> Bool
     // Informe si la ligne est complétée

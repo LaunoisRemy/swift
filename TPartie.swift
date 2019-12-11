@@ -11,10 +11,6 @@ protocol TPartie{
     //Post: finDePartie(init()) == false et aGagne == nil
     init()
 
-    //plateau : TPartie -> TPlateau
-    //Résulat : Retourne le plateau de la partie
-    //Pré : le plateau a été créé auparavant
-    var plateau : TPlateau {get set}
     
     //aGagne : TPartie -> String
     //Résultat: retourne la couleur du joueur qui a gagné. (celui qui a tué le maitre de l'autre ou qui a positionné son maitre est sur l'arche de l'autre (la case de départ de son maitre))

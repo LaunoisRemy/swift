@@ -25,7 +25,7 @@ protocol TJoueur{
     //Pré : le joueur à été créé
     func getPionsEnVie() -> [TPion]
 
-    //echangerCarte : TJoueur x TCarte x TPartie -> TJoueur
+    //echangerCarte : TJoueur x TCarte x TPartie-> TJoueur
     //Résultat: echange la carte du joueur passée en paramètre avec la carteMilieu du plateau
     //Pré: la carte doit appartenir au joueur, et s'il a pu déplacer son pion, ça doit être la carte qu'il a utilisé. Si il n'a pas pu déplacer son pion, ça peut être n'importe laquelle de ses deux cartes
     mutating func echangerCarte(carte : TCarte, partie : TPartie)

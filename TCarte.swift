@@ -40,9 +40,18 @@ struct Carte{
         self._motif=motif
     }
 
-    func getMotif() -> [(Int,Int)] { return _motif}
+    func getMotif() -> [(Int,Int)] {return _motif}
 
-    func descriptionCarte() -> String{return "a"}
+    func descriptionCarte() -> String{return "Ceci est la carte : "+self.nom+"\n Voici les déplacements associés : "+String(self.getMotif())}
 
-    func deplacementAppartientMotif(x : Int, y : Int) -> Bool{return false}
+    func deplacementAppartientMotif(x : Int, y : Int) -> Bool{
+        motif=self.getMotif()
+        var check:Bool=false
+        for element in motif{
+            if x==element.0 && y==element.1{
+                check=true
+            }
+        }
+        return check
+    }
 }

@@ -57,7 +57,7 @@ protocol TPion {
     //peutBouger : TPion x Int x Int -> Bool
     //Résultat: true si le pion appartient au joueur, est vivant, et que la nouvelle position de ce pion ne sort pas de la grille, et n'est pas occupée par un de ses pions (de la même couleur).
     //Pré: le déplacement (x,y) par rapport à la case du joueur doit correspondre à un déplacement d'une carte du joueur
-    func peutBouger(x : Int, y : Int) -> Bool
+    func peutBouger(joueur : Joueur, x : Int, y : Int) -> Bool
 
 
     //descriptionPion : TPion -> String
@@ -74,13 +74,12 @@ protocol TPion {
     mutating func bougerPion(x : Int, y : Int)
 }
 
-class Pion : TPion {
+class Pion:TPion {
     var estVivant : Bool
     private var _couleur : String
     private var _type : String
-    // ?? pourquoi un T devant Position alors que c'est un protocol 
-    var position : TPosition?
-    // -------------------------------
+    var position : Position?
+
     required init(couleur:String,type:String){
         self.estVivant = true 
         self._couleur=couleur
@@ -91,9 +90,107 @@ class Pion : TPion {
     var couleur : String {return self._couleur}
 
     var type : String {return self._type}
+    // TO DO :  faire une fonction qui permet de retrouver une position avec x et y ... on suppose que c'est la fonction coordToPos(x,y)
+    func peutBouger(joueur : Joueur, x : Int, y : Int) -> Bool {
+        if self.estVivant{
+            if x>=0 && x<=5 && y>=0 && y<=5{
+                var pos=coordToPos(x:x,y:y)
+                if joueur.couleur==self.couleur && pos.estOccupee==false{
+                    return true
+                }   
+            }  
+        }
+        return false
+    }
+        
 
-    func peutBouger(x : Int, y : Int) -> Bool {return false}
-    func descriptionPion() -> String {return "non"}
-    func bougerPion(x : Int, y : Int) {}
+    func descriptionPion() -> String {
+        var pos:String=""
+        pos+="("+String(self.position.0)+","
+        pos+=String(self.position.1)+")"
+
+        return "Le pion est de couleur: "+self.couleur+"\n C'est un pion : "+self.type+"\n Il est à la position : "+pos
+    }
+
+
+
+    func bougerPion(x : Int, y : Int) {
+        var pos=coordToPos(x:x,y:y)
+        self.position.estOccupee=false
+        self.position=pos
+        self.position.estOccupee=true
+    }
 
 }
+
+protocol TCarte {
+    //init: -> TCarte
+    //Résultat: cette fonction crée une carte avec un nom, une couleur et un motif = l'ensemble des déplacements possibles par rapport à la case occupée par le joueur
+    //Pré:la couleur est soit "rouge" soit "bleu"
+    init(nom:String,couleur:String,motif:[(Int,Int)])
+
+    //nom : TCarte -> String
+    //Résultat: Retourne le nom de la carte
+    //Pré: La carte passé en paramètre appartient au tas de cartes du plateaux
+    var nom : String {get}
+
+    //couleur : TCarte -> String
+    //Résultat: Retourne la couleur de la carte, soit "bleu", soit "rouge"
+    //Pré: La carte passé en paramètre appartient au tas de cartes du plateaux
+    var couleur : String {get}
+
+    //getMotif: -> ((Int,Int))
+    //Résultat: retourne tous les déplacements relatifs pour la carte. Ces coordonsnées ne dépendent pas d'un pion.
+    func getMotif() -> [(Int,Int)]
+
+    //descriptionCarte : TCarte -> String
+    //Resultat: retourne un string qui contient le nom et les déplacements possibles de la carte passée en paramètre. ex: carte(nom : dragon, déplacement : ((x1,y1),(x2,y2),.....)
+    //Pré: les cartes ont été distribuées
+    func descriptionCarte() -> String
+
+    //deplacementAppartientMotif : TCarte x Int x Int -> Bool
+    //Résultat: retourne true si le déplacement Int x Int appartient au motif de la carte passée en paramètre
+    func deplacementAppartientMotif(x : Int, y : Int) -> Bool
+}
+
+
+struct Carte{
+    private var _nom : String
+    private var _couleur : String
+    private var _motif : [(Int,Int)]
+
+    init(nom:String,couleur:String,motif:[(Int,Int)]){
+        self._nom=nom
+        self._couleur=couleur
+        self._motif=motif
+    }
+    var nom:String {return self._nom}
+    var couleur:String {return self._couleur}
+
+    func getMotif() -> [(Int,Int)] {return _motif}
+
+    func descriptionCarte() -> String{
+        
+        var pos:String="["
+        for element in self._motif{
+            pos+="("+String(element.0)+","
+            pos+=String(element.1)+") "
+        }
+        pos+="]"
+        return "Ceci est la carte : "+self.nom+"\n Voici les déplacements associés : "+pos
+    }
+
+    func deplacementAppartientMotif(x : Int, y : Int) -> Bool{
+        
+        var check:Bool=false
+        for element in self._motif{
+            if x==element.0 && y==element.1{
+                check=true
+            }
+        }
+        return check
+    }
+}
+
+
+func coordToPos(x:Int,y:Int)->Position{return Position(x,y)}

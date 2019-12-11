@@ -2,7 +2,7 @@ protocol TJoueur{
     //init: -> TJoueur
     //Résultat: cette fonction crée un joueur avec une couleur, 4 pions élèves et un pion maître (tous en vie) , avec deux cartes vides
     //Post: les pions auront la même couleur que le joueur
-    init()
+    init(couleur:String,posMaitre : TPosition)
     
     //couleur : TJoueur -> String
     //Résultat : retourne la couleur du joueur, soit "bleu", soit "rouge"
@@ -51,5 +51,35 @@ protocol TJoueur{
     //getPion : TJoueur x Int x Int -> TPion
     //Résultat: retoune le TPion du joueur qui se trouve sur la position passée en paramètre
     //Pré: existePion(joueur, TPosition ) == true
+    func getPion(x : Int, y : Int) -> TPion
+}
+
+class Joueur {
+    private var _couleur : String
+    private var _cartes : (TCarte!, TCarte!)
+    private var _caseMaitre : TPosition
+
+    init(couleur:String,posMaitre=TPosition) {
+        self._couleur = couleur
+        self._cartes = (nil,nil)
+        self._caseMaitre =posMaitre
+
+    }
+
+    var couleur : String {return self._couleur}
+    var caseMaitre : TPosition {return self._caseMaitre}
+
+    func getCartes() throws -> [TCarte] {
+        guard let c = _cartes.0 else { fatalError("Erreur vous appel trop tot") }
+        guard let c = _cartes.1 else { fatalError("Erreur vous appel trop tot") }
+        return [_cartes.0,_cartes.1]
+    }
+
+    func getPionsEnVie() -> [TPion]
+    mutating func echangerCarte(carte : TCarte, plateau : TPlateau)
+    func existeDeplacement() -> Bool
+    func existePion(x : Int, y : Int) -> Bool
+    func existeCarte(nom : String) -> Bool
+    func getCarte(nom : String) -> TCarte
     func getPion(x : Int, y : Int) -> TPion
 }

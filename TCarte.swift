@@ -29,16 +29,20 @@ protocol TCarte {
 }
 
 
-class Carte{
+struct Carte{
     private var _nom : String
     private var _couleur : String
-    var motif : [(Int,Int)]
+    private var _motif : [(Int,Int)]
+
     init(nom:String,couleur:String,motif:[(Int,Int)]){
         self._nom=nom
         self._couleur=couleur
-        self.motif=motif
+        self._motif=motif
     }
-    func getMotif() -> [(Int,Int)] {}
+
+    func getMotif() -> [(Int,Int)] { return _motif}
+
     func descriptionCarte() -> String{return "a"}
+
     func deplacementAppartientMotif(x : Int, y : Int) -> Bool{return false}
 }

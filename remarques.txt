@@ -5,3 +5,5 @@ bougerPion va modifier le pion or il ne possède pas de mutating
 
 position : il manque un accès retour a la position en utilisant x et y ( utilisé dans peutbouger) 
 
+Le type Tplateau a été supprimé, mais pas remplacé dans les fonctions l'utilisant
+

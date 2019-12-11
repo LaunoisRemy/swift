@@ -25,10 +25,10 @@ protocol TJoueur{
     //Pré : le joueur à été créé
     func getPionsEnVie() -> [TPion]
 
-    //echangerCarte : TJoueur x TCarte x TPlateau -> TJoueur
+    //echangerCarte : TJoueur x TCarte x TPartie -> TJoueur
     //Résultat: echange la carte du joueur passée en paramètre avec la carteMilieu du plateau
     //Pré: la carte doit appartenir au joueur, et s'il a pu déplacer son pion, ça doit être la carte qu'il a utilisé. Si il n'a pas pu déplacer son pion, ça peut être n'importe laquelle de ses deux cartes
-    mutating func echangerCarte(carte : TCarte, plateau : TPlateau)
+    mutating func echangerCarte(carte : TCarte, partie : TPartie)
 
     //existeDeplacement : TJoueur -> Bool
     //Résultat: retourne true si le joueur peut déplacer au moins un de ses pions en vie avec les cartes qu'il a
@@ -56,30 +56,35 @@ protocol TJoueur{
 
 class Joueur {
     private var _couleur : String
-    private var _cartes : (TCarte!, TCarte!)
-    private var _caseMaitre : TPosition
+    private var _cartes : (Carte?, Carte?)
+    private var _caseMaitre : Position
 
-    init(couleur:String,posMaitre=TPosition) {
+    init(couleur:String, posMaitre : Position) {
         self._couleur = couleur
         self._cartes = (nil,nil)
-        self._caseMaitre =posMaitre
+        self._caseMaitre = posMaitre
 
     }
 
     var couleur : String {return self._couleur}
-    var caseMaitre : TPosition {return self._caseMaitre}
+    var caseMaitre : Position {return self._caseMaitre}
 
-    func getCartes() throws -> [TCarte] {
-        guard let c = _cartes.0 else { fatalError("Erreur vous appel trop tot") }
-        guard let c = _cartes.1 else { fatalError("Erreur vous appel trop tot") }
-        return [_cartes.0,_cartes.1]
+    func getCartes() throws -> [Carte] {
+        guard let c1 = _cartes.0 else { fatalError("Erreur vous appel trop tot") }
+        guard let c2 = _cartes.1 else { fatalError("Erreur vous appel trop tot") }
+        return [c1,c2]
     }
 
-    func getPionsEnVie() -> [TPion]
-    mutating func echangerCarte(carte : TCarte, plateau : TPlateau)
-    func existeDeplacement() -> Bool
-    func existePion(x : Int, y : Int) -> Bool
-    func existeCarte(nom : String) -> Bool
-    func getCarte(nom : String) -> TCarte
-    func getPion(x : Int, y : Int) -> TPion
+    func getPionsEnVie() -> [Pion] {
+    	var pions : [Pion]
+    	return pions
+    }
+    func echangerCarte(carte : Carte, partie : TPartie) {
+    	self._cartes = (nil,nil)
+    }
+    func existeDeplacement() -> Bool { return false}
+    func existePion(x : Int, y : Int) -> Bool { return false}
+    func existeCarte(nom : String) -> Bool { return false}
+    func getCarte(nom : String) -> Carte 
+    func getPion(x : Int, y : Int) -> Pion
 }

@@ -51,6 +51,7 @@ class Pion:Tpion {
     private var _couleur : String
     private var _type : String
     var position : Position?
+
     init(couleur:String,type:String){
         self.estVivant = true 
         self._couleur=couleur
@@ -77,6 +78,7 @@ class Pion:Tpion {
     func descriptionPion() -> String {
         return "Le pion est de couleur: "+self.couleur+"\n C'est un pion : "+self.type+"\n Il est à la position : "+String(self.position.coordonnees)
     }
+
 
 
     func bougerPion(x : Int, y : Int) {

@@ -29,7 +29,7 @@ protocol TPion {
     //peutBouger : TPion x Int x Int -> Bool
     //Résultat: true si le pion appartient au joueur, est vivant, et que la nouvelle position de ce pion ne sort pas de la grille, et n'est pas occupée par un de ses pions (de la même couleur).
     //Pré: le déplacement (x,y) par rapport à la case du joueur doit correspondre à un déplacement d'une carte du joueur
-    func peutBouger(x : Int, y : Int) -> Bool
+    func peutBouger(joueur : Joueur, x : Int, y : Int) -> Bool
 
 
     //descriptionPion : TPion -> String
@@ -61,9 +61,29 @@ class Pion:Tpion {
     var couleur : String {return self._couleur}
 
     var type : String {return self._type}
+    // TO DO :  faire une fonction qui permet de retrouver une position avec x et y ... on suppose que c'est la fonction coordToPos(x,y)
+    func peutBouger(joueur : Joueur, x : Int, y : Int) -> Bool {
+        if self.estVivant{
+            if x>=0 && x<=5 && y>=0 && y<=5{
+                pos=coordToPos(x:x,y:y)
+                if joueur.couleur==self.couleur && pos.estOccupee==false{
+                    return true
+                }   
+            }  
+        }
+        return false 
+        
 
-    func peutBouger(x : Int, y : Int) -> Bool {return false}
-    func descriptionPion() -> String {return "non"}
-    func bougerPion(x : Int, y : Int) {}
+    func descriptionPion() -> String {
+        return "Le pion est de couleur: "+self.couleur+"\n C'est un pion : "+self.type+"\n Il est à la position : "+String(self.position.coordonnees)
+    }
+
+
+    func bougerPion(x : Int, y : Int) {
+        var pos=coordToPos(x:x,y:y)
+        self.position.estOccupee=false
+        self.position=pos
+        self.position.estOccupee=true
+    }
 
 }

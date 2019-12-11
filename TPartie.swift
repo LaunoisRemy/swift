@@ -48,6 +48,8 @@ protocol TPartie{
     //changerJoueur : TPartie
     //Résulat: le joueurCourant devient le joueurAdverse et inversement
     func changerJoueur()
+
+    func coordToPos(x:Int,y:Int)->TPosition
 }
 
 

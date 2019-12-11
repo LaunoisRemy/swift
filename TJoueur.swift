@@ -56,48 +56,107 @@ protocol TJoueur{
 
 class Joueur {
     private var _couleur : String
-    private var _cartes : (Carte?, Carte?)
+    private var _cartes : [Carte]=[] //rien a la place de deux cartes vide
     private var _caseMaitre : Position
-    private var _pions : [Pion]
+    var pions : Array<Pion> = Array()
 
     init(couleur:String, posMaitre : Position) {
         self._couleur = couleur
-        self._cartes = (nil,nil)
         self._caseMaitre = posMaitre
-        for i in 0..<4 {
-
-        	_pions[i] = Pion(couleur:self._couleur, type:"eleve")
+        self.pions.reserveCapacity(5)
+        for _ in 0..<4 {
+        	self.pions.append(Pion(couleur:self._couleur, type:"eleve"))
         }
-        _pions[_pions.count] = Pion(couleur:self._couleur, type:"maitre")
-
-
+        self.pions.append(Pion(couleur:self._couleur, type:"maitre"))
     }
 
     var couleur : String {return self._couleur}
     var caseMaitre : Position {return self._caseMaitre}
 
     func getCartes() throws -> [Carte] {
-        guard let c1 = _cartes.0 else { fatalError("Erreur vous appel trop tot") }
-        guard let c2 = _cartes.1 else { fatalError("Erreur vous appel trop tot") }
-        return [c1,c2]
+        return _cartes
     }
 
     func getPionsEnVie() -> [Pion] {
-    	var pions : [Pion]
+    	var pions : [Pion] = []
+    	for p in pions {
+    		if(p.estVivant){
+    			pions.append(p)
+    		}
+    	}
     	return pions
     }
-    func echangerCarte(carte : Carte, partie : TPartie) {
-    	self._cartes = (nil,nil)
+
+    func echangerCarte(carte : Carte, partie : TPartie) throws {
+    	// TODO : verif que la carte a permis le deplacement => que cette carte echange ou sinon les deux
+    	if(self.existeCarte(nom:carte.nom)){
+    		if(self._cartes[0].nom == carte.nom ){
+    			self._cartes[0]=partie.carteMilieu()
+    			partie.carteMilieu=carte
+    		}else{
+    			self._cartes.1=partie.carteMilieu()
+    			partie.carteMilieu=carte
+    		}
+    	}else {
+    		fatalError("Mauvaise carte")
+    	}
     }
+
     func existeDeplacement() -> Bool { return false}
-    func existePion(x : Int, y : Int) -> Bool { return false}
-    func existeCarte(nom : String) -> Bool { return false}
-    func getCarte(nom : String) -> Carte {
-        guard let c1 = _cartes.0 else { fatalError("Erreur vous appel trop tot") }
-        guard let c2 = _cartes.1 else { fatalError("Erreur vous appel trop tot") }
-        return c1
+
+    func existePion(x : Int, y : Int) -> Bool {
+    	var existe : Bool = false
+    	var i : Int = 0
+    	while existe == false {
+    		let p : Pion = pions[i]
+    		if let pos = p.position {
+    			if pos.coordonnees == (x,y){
+    				existe = true
+    			}
+    		}
+    		i+=1
+    	}
+     	return false
+ 	}
+
+    func existeCarte(nom : String) -> Bool { 
+    	if self._cartes[0].nom==nom || self._cartes[1].nom==nom 	{
+    		return true
+    		}else {
+    			return false
+    		}
     }
+
+    func getCarte(nom : String) throws -> Carte {
+    	if(existeCarte(nom : nom)) {
+    	    if(self._cartes[0].nom == nom ){
+    			return self._cartes[0]
+    		}else {
+    			return self._cartes[1]
+    		}	
+    	}else {
+    		fatalError("La carte n'existe pas")
+    	}
+    }
+
     func getPion(x : Int, y : Int) -> Pion {
-    	return _pions[0]
+    	var existe : Bool = false
+    	var i : Int = 0
+    	while existe == false {
+    		let p : Pion = pions[i]
+    		if let pos = p.position {
+    			if pos.coordonnees == (x,y){
+    				existe = true
+    			}
+    		}
+    		i+=1
+    	}
+    	if(existe==true){
+    		i-=1
+    		return pions[i]
+    	}else {
+    		fatalError("Le pion n'est pas present")
+    	}
     }
+
 }

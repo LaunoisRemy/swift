@@ -58,11 +58,18 @@ class Joueur {
     private var _couleur : String
     private var _cartes : (Carte?, Carte?)
     private var _caseMaitre : Position
+    private var _pions : [Pion]
 
     init(couleur:String, posMaitre : Position) {
         self._couleur = couleur
         self._cartes = (nil,nil)
         self._caseMaitre = posMaitre
+        for i in 0..<4 {
+
+        	_pions[i] = Pion(couleur:self._couleur, type:"eleve")
+        }
+        _pions[_pions.count] = Pion(couleur:self._couleur, type:"maitre")
+
 
     }
 
@@ -85,6 +92,12 @@ class Joueur {
     func existeDeplacement() -> Bool { return false}
     func existePion(x : Int, y : Int) -> Bool { return false}
     func existeCarte(nom : String) -> Bool { return false}
-    func getCarte(nom : String) -> Carte 
-    func getPion(x : Int, y : Int) -> Pion
+    func getCarte(nom : String) -> Carte {
+        guard let c1 = _cartes.0 else { fatalError("Erreur vous appel trop tot") }
+        guard let c2 = _cartes.1 else { fatalError("Erreur vous appel trop tot") }
+        return c1
+    }
+    func getPion(x : Int, y : Int) -> Pion {
+    	return _pions[0]
+    }
 }

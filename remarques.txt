@@ -1,0 +1,7 @@
+Tous les inits n'ont pas de paramètres. 
+
+la fonction peutBouger, ne possède pas de lien avec le joueur, il manque donc un paramètre. 
+bougerPion va modifier le pion or il ne possède pas de mutating
+
+position : il manque un accès retour a la position en utilisant x et y ( utilisé dans peutbouger) 
+

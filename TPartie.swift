@@ -45,7 +45,7 @@ protocol TPartie{
     //Résulat: le joueurCourant devient le joueurAdverse et inversement
     func changerJoueur()
 
-    func coordToPos(x:Int,y:Int)->TPosition
+
 }
 
 
@@ -68,3 +68,65 @@ class Partie : TPartie {
 	func changerJoueur() {}
 }
 */
+// x sens horizontale a partir de la case noir et y vertical 
+class Partie:TPartie{
+    var grille:[[Position]]=[]
+    var carteMilieu:Carte!
+    var deck:[Carte]=[]
+    private var _commence:TJoueur!
+    var joueurCourant:Joueur!
+    var joueurAdverse:Joueur!
+    init(){
+        // Initialisation des Cartes
+        self.deck.append(Carte("lapin","rouge",["(1,1)","(2,0)","(-1,-1)"]))
+        self.deck.append(Carte("boeuf","rouge",["(1,0)","(0,1)","(0,-1)"]))
+        self.deck.append(Carte("cobra","rouge",["(-1,0)","(1,1)","(1,-1)"]))
+        self.deck.append(Carte("elephant","bleu",["(-1,0)","(-1,1)","(1,0)","(1,1)"]))
+        self.deck.append(Carte("dragon","bleu",["(2,1)","(-2,1)","(-1,-1)","(1,-1)"]))
+        self.deck.append(Carte("tigre","bleu",["(0,2)","(0,-1)"]))
+
+        //Création de la Grille. la position (0,0) correspont au coin en haut a gauche du plateau
+        for y in 0..<5{
+            var ligne:[Position]=[]
+            for x in 0..<5{
+                ligne.append(Position(x,y))
+            self.grille.append(ligne)
+
+            }
+        }
+
+        //Attribution de la carte situé au Milieu 
+        let milieu:Int= Int.random(in: 0..<6)
+        self.carteMilieu=deck[milieu]
+        self.deck.remove(at:milieu)
+
+
+        //Création des joueurs 
+        self.joueurCourant=Joueur("bleu",Position(2,0))
+        self.joueurAdverse=Joueur("rouge",Position(2,4))
+
+        //Attribution premier joueur
+        if carteMilieu.couleur==joueurCourant.couleur{
+            self._commence=joueurCourant
+        }
+        else{
+            joueurSuiv(jc:joueurCourant,ja:joueurAdverse)
+            self._commence=joueurCourant
+        }
+
+
+        //Positionnement des Pions
+
+
+
+
+    }
+
+    private mutating func joueurSuiv(jc:Joueur,ja:Joueur){
+        var tmp:Joueur=jc
+        self.joueurCourant=ja
+        self.joueurAdverse=tmp
+
+    }
+
+}

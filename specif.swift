@@ -13,6 +13,9 @@ protocol TPosition{
     var coordonnees : (Int,Int) {get}
 }
 
+// TPosition est passé en class (référence) car dans le type Partie, il y a une grille qui possède des positions 
+// et les pions qui pointent vers les mêmes positions. Afin d'éviter de faire une copie valeur des positions de la grille,
+// initialiser la positions des pions en poitant vers la référence des positions assurera la modifications des positions. 
 class Position : TPosition {
     var estOccupee : Bool
     private var _coordonnees : (Int,Int)
@@ -23,6 +26,8 @@ class Position : TPosition {
     }
 
     var coordonnees : (Int,Int) {return self._coordonnees}
+
+
 }
 
 // ------------------------------------------------------------------

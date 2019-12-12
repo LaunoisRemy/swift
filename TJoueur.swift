@@ -73,7 +73,7 @@ class Joueur {
     var couleur : String {return self._couleur}
     var caseMaitre : Position {return self._caseMaitre}
 
-    func getCartes() throws -> [Carte] {
+    func getCartes()  -> [Carte] {
         return _cartes
     }
 
@@ -87,16 +87,18 @@ class Joueur {
     	return pions
     }
 
-    func echangerCarte(carte : Carte, partie : TPartie) throws {
+    func echangerCarte(carte : Carte, partie : Partie)  {
     	// TODO : verif que la carte a permis le deplacement => que cette carte echange ou sinon les deux
     	if(self.existeCarte(nom:carte.nom)){
-    		if(self._cartes[0].nom == carte.nom ){
-    			self._cartes[0]=partie.carteMilieu()
-    			partie.carteMilieu=carte
-    		}else{
-    			self._cartes.1=partie.carteMilieu()
-    			partie.carteMilieu=carte
-    		}
+            if let c1 = self._cartes[0] {
+                if(c1.nom == carte.nom ){
+                    c1=partie.carteMilieu()
+                        partie.carteMilieu=carte
+                }/*else{
+                    self._cartes[1]=partie.carteMilieu()
+                    partie.carteMilieu=carte
+                }*/
+            }
     	}else {
     		fatalError("Mauvaise carte")
     	}

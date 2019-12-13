@@ -90,15 +90,14 @@ class Joueur {
     func echangerCarte(carte : Carte, partie : Partie)  {
     	// TODO : verif que la carte a permis le deplacement => que cette carte echange ou sinon les deux
     	if(self.existeCarte(nom:carte.nom)){
-            if let c1 = self._cartes[0] {
-                if(c1.nom == carte.nom ){
-                    c1=partie.carteMilieu()
-                        partie.carteMilieu=carte
-                }/*else{
-                    self._cartes[1]=partie.carteMilieu()
-                    partie.carteMilieu=carte
-                }*/
+            if(self._cartes[0].nom == carte.nom ){
+                self._cartes[0]=partie.carteMilieu
+                partie.carteMilieu=carte
+            }else{
+                self._cartes[1]=partie.carteMilieu
+                partie.carteMilieu=carte
             }
+            
     	}else {
     		fatalError("Mauvaise carte")
     	}

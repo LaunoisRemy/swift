@@ -32,6 +32,7 @@ class Position : TPosition {
 
 // ------------------------------------------------------------------
 
+
 protocol TPion {
     //init :  -> TPion
     //Résultat: crée un pion avec un couleur , un type de pion, et un boolean estVivant
@@ -79,6 +80,7 @@ protocol TPion {
     mutating func bougerPion(x : Int, y : Int)
 }
 
+
 class Pion:TPion {
     var estVivant : Bool
     private var _couleur : String
@@ -99,7 +101,7 @@ class Pion:TPion {
     func peutBouger(joueur : Joueur, x : Int, y : Int) -> Bool {
         if self.estVivant{
             if x>=0 && x<=5 && y>=0 && y<=5{
-                var pos=coordToPos(x:x,y:y)
+                let pos=coordToPos(x:x,y:y)
                 if joueur.couleur==self.couleur && pos.estOccupee==false{
                     return true
                 }   
@@ -111,8 +113,10 @@ class Pion:TPion {
 
     func descriptionPion() -> String {
         var pos:String=""
-        pos+="("+String(self.position.0)+","
-        pos+=String(self.position.1)+")"
+        if let p=self.position{
+           pos+="("+String(p.coordonnees.0)+","
+           pos+=String(p.coordonnees.1)+")"
+        }
 
         return "Le pion est de couleur: "+self.couleur+"\n C'est un pion : "+self.type+"\n Il est à la position : "+pos
     }
@@ -120,13 +124,18 @@ class Pion:TPion {
 
 
     func bougerPion(x : Int, y : Int) {
-        var pos=coordToPos(x:x,y:y)
-        self.position.estOccupee=false
-        self.position=pos
-        self.position.estOccupee=true
+        let pos=coordToPos(x:x,y:y)
+        self.position!.estOccupee=false
+        self.position!=pos
+        self.position!.estOccupee=true
+        
+        
     }
 
 }
+
+
+
 
 protocol TCarte {
     //init: -> TCarte
@@ -198,4 +207,4 @@ struct Carte{
 }
 
 
-func coordToPos(x:Int,y:Int)->Position{return Position(x,y)}
+func coordToPos(x:Int,y:Int)->Position{return Position(x:x,y:y)}

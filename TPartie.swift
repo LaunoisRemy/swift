@@ -15,27 +15,27 @@ protocol TPartie{
     //aGagne : TPartie -> String
     //Résultat: retourne la couleur du joueur qui a gagné. (celui qui a tué le maitre de l'autre ou qui a positionné son maitre est sur l'arche de l'autre (la case de départ de son maitre))
     //Pré: finDePartie == true
-    var aGagne : String? {get set}
+    var aGagne:String? {get set}
 
     //commence : TPartie -> TJoueur
     //Résultat: retoune le joueur qui a la même couleur que la carteMilieu
     //Pré: la partie est créée
-    var commence : TJoueur!{get}
+    var commence:TJoueur! {get}
 
     //joueurCourant : TPartie -> TJoueur
     //Résultat: renvoie le joueur qui est en train de jouer
     //Pré : pour le set, il faut envoyer un TJoueur
-    var joueurCourant : TJoueur! {get set}
+    var joueurCourant:TJoueur! {get set}
 
     //joueurAdverse : TPartie -> TJoueur
     //Résultat: renvoie le joueur adverse du joueur courant
     //Pré : Envoi le joueur courant en paramètre
-    var joueurAdverse : TJoueur! {get set}
+    var joueurAdverse:TJoueur! {get set}
 
     //carteMilieu : TPartie -> TCarte
     //Pré: les carte ont déjà été distribuées 
     //Résultat: retourne la carte du milieu du plateau
-    var carteMilieu : TCarte! {get set}
+    var carteMilieu:TCarte! {get set}
 
     //finPartie : TPartie -> Bool
     //Résultat: retourne True si le joueurCourant capture le maître de joueurAdverse “Voie de la Pierre” ou si le maître de joueurCourant va sur la case arche de joueurAdverse (la case de départ du Maitre) “Voie du Ruisseau
@@ -71,13 +71,15 @@ class Partie : TPartie {
 // x sens horizontale a partir de la case noir et y vertical 
 class Partie : TPartie{
     private var grille:[[Position]]=[]
-    var carteMilieu:Carte! 
+    var carteMilieu:Carte 
     private var deck:[Carte]=[]
     private var _commence:Joueur!
-    var joueurCourant : Joueur!
+    var joueurCourant:Joueur!
     var joueurAdverse:Joueur!
     var aGagne:String?
     var commence:Joueur!
+
+
     //{return self._commence} 
 
     private let j1:Joueur 
@@ -174,6 +176,7 @@ class Partie : TPartie{
 
 
 
+
     func finPartie() -> Bool{
         var indice_adv:Int=0
         var indice_cour:Int=0
@@ -187,8 +190,11 @@ class Partie : TPartie{
             indice_cour+=1
         }
         //Le pion maitre adverse est vivant ou Le pion maitre courant est sur la case maitre adversaire 
+        let maitreAdverse : Bool = self.joueurAdverse.pions[indice_adv].estVivant
 
-        return self.joueurAdverse.pions[indice_adv].estVivant != true || self.joueurCourant.pions[indice_cour].position === self.joueurAdverse.caseMaitre
+        let jcPion:Pion=self.joueurCourant.pions[indice_cour]
+        let posMaitreJc : Position = jcPion.position!
+        return  maitreAdverse != true ||  posMaitreJc === self.joueurAdverse.caseMaitre
 
     }
 

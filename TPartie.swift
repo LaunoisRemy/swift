@@ -70,20 +70,21 @@ class Partie : TPartie {
 */
 // x sens horizontale a partir de la case noir et y vertical 
 class Partie : TPartie{
+    
     private var grille:[[Position]]=[]
-    var carteMilieu:Carte 
-    private var deck:[Carte]=[]
-    private var _commence:Joueur!
-    var joueurCourant:Joueur!
-    var joueurAdverse:Joueur!
+    var carteMilieu:TCarte!
+    private var deck:[TCarte]=[]
+    private var _commence:TJoueur!
+    var joueurCourant:TJoueur!
+    var joueurAdverse:TJoueur!
     var aGagne:String?
-    var commence:Joueur!
-
-
-    //{return self._commence} 
-
-    private let j1:Joueur 
-    private let j2:Joueur
+    var commence:TJoueur!
+    
+    
+    //{return self._commence}
+    
+    private let j1:TJoueur
+    private let j2:TJoueur
     required init(){
         // Initialisation des Cartes
         self.deck.reserveCapacity(6)
@@ -93,28 +94,28 @@ class Partie : TPartie{
         self.deck.append(Carte(nom:"elephant",couleur:"bleu",motif:[(-1,0),(-1,1),(1,0),(1,1)]))
         self.deck.append(Carte(nom:"dragon",couleur:"bleu",motif:[(2,1),(-2,1),(-1,-1),(1,-1)]))
         self.deck.append(Carte(nom:"tigre",couleur:"bleu",motif:[(0,2),(0,-1)]))
-
+        
         //Création de la Grille. la position (0,0) correspont au coin en haut a gauche du plateau
         for y in 0..<5{
             var ligne:[Position]=[]
             for x in 0..<5{
                 ligne.append(Position(x:x,y:y))
-            self.grille.append(ligne)
-
+                self.grille.append(ligne)
+                
             }
         }
-
-        //Attribution de la carte situé au Milieu 
+        
+        //Attribution de la carte situé au Milieu
         let milieu:Int=Int.random(in: 0..<6)
         self.carteMilieu=self.deck[milieu]
         self.deck.remove(at:milieu)
-
-
-        //Création des joueurs 
+        
+        
+        //Création des joueurs
         self.j1=Joueur(couleur:"bleu",posMaitre:self.grille[0][2])
         self.j2=Joueur(couleur:"rouge",posMaitre:self.grille[4][2])
-
-
+        
+        
         //Attribution premier joueur
         if self.carteMilieu.couleur==self.j1.couleur{
             self._commence=self.j1
@@ -127,27 +128,27 @@ class Partie : TPartie{
             self.joueurCourant=self.j2
             self.joueurAdverse=self.j1
         }
-
-
-        //Positionnement des Pions du joueur 
-        // n'étant pas précisé, on a décidé de placer le joueur bleu sur la ligne 0 et le joueur Rouge sur la ligne 4 
-        //Joueur courant 
-        initPosPions(j:self.joueurCourant)
+        
+        
+        //Positionnement des Pions du joueur
+        // n'étant pas précisé, on a décidé de placer le joueur bleu sur la ligne 0 et le joueur Rouge sur la ligne 4
+        //Joueur courant
+        initPosPions(j:&self.joueurCourant)
         //Joueur Adverse
-        initPosPions(j:self.joueurAdverse)
-
+        initPosPions(j:&self.joueurAdverse)
+        
         //Initialisation de la variable aGagne
         self.aGagne=nil
     }
-   
     
-
-    private func initPosPions(j:Joueur){
+    
+    
+    private func initPosPions(j: inout TJoueur){
         var i:Int=0
         let poseleve:[Int]=[0,1,3,4]
         let posmaitre:Int=2
         if j.couleur=="bleu"{
-            for element in joueurCourant.pions{
+            for element in joueurCourant.getPionsEnVie(){
                 if element.type=="eleve"{
                     element.position=self.grille[0][poseleve[i]]
                     i+=1
@@ -159,7 +160,7 @@ class Partie : TPartie{
             }
         }
         else{
-            for element in joueurCourant.pions{
+            for element in joueurCourant.getPionsEnVie(){
                 if element.type=="eleve"{
                     element.position=self.grille[4][poseleve[i]]
                     i+=1
@@ -169,43 +170,43 @@ class Partie : TPartie{
                 }
                 
             }
-
+            
         }
-
+        
     }
-
-
-
-
+    
+    
+    
+    
     func finPartie() -> Bool{
         var indice_adv:Int=0
         var indice_cour:Int=0
-
+        
         //Trouve le pions maitre dans la liste des pions du joueur adverse
-        while self.joueurAdverse.pions[indice_adv].type != "maitre"{
+        while self.joueurAdverse.getPionsEnVie()[indice_adv].type != "maitre"{
             indice_adv+=1
         }
         //Trouve le pions maitre dans la liste des pions du joueur courant
-        while self.joueurCourant.pions[indice_cour].type != "maitre"{
+        while self.joueurCourant.getPionsEnVie()[indice_cour].type != "maitre"{
             indice_cour+=1
         }
-        //Le pion maitre adverse est vivant ou Le pion maitre courant est sur la case maitre adversaire 
-        let maitreAdverse : Bool = self.joueurAdverse.pions[indice_adv].estVivant
-
-        let jcPion:Pion=self.joueurCourant.pions[indice_cour]
-        let posMaitreJc : Position = jcPion.position!
-        return  maitreAdverse != true ||  posMaitreJc === self.joueurAdverse.caseMaitre
-
+        //Le pion maitre adverse est vivant ou Le pion maitre courant est sur la case maitre adversaire
+        let maitreAdverse : Bool = self.joueurAdverse.getPionsEnVie()[indice_adv].estVivant
+        
+        let jcPion:TPion=self.joueurCourant.getPionsEnVie()[indice_cour]
+        let posMaitreJc : TPosition = jcPion.position!
+        return  maitreAdverse != true ||  posMaitreJc == self.joueurAdverse.caseMaitre
+        
     }
-
-
+    
+    
     func changerJoueur(){
         /* facon plus rapide mais ne sais pas si fonctionnelle
-        let tmp:Joueur=self.joueurCourant
-        self.joueurCourant=self.joueurAdverse
-        self.joueurAdverse=tmp
-        */
-
+         let tmp:Joueur=self.joueurCourant
+         self.joueurCourant=self.joueurAdverse
+         self.joueurAdverse=tmp
+         */
+        
         if self.joueurCourant===self.j1{
             self.joueurCourant=self.j2
             self.joueurAdverse=self.j1
@@ -215,6 +216,6 @@ class Partie : TPartie{
             self.joueurAdverse=self.j2
         }
     }
-
-
+    
+    
 }

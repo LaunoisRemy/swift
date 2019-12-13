@@ -28,7 +28,7 @@ protocol TJoueur{
     //echangerCarte : TJoueur x TCarte x TPartie-> TJoueur
     //Résultat: echange la carte du joueur passée en paramètre avec la carteMilieu du plateau
     //Pré: la carte doit appartenir au joueur, et s'il a pu déplacer son pion, ça doit être la carte qu'il a utilisé. Si il n'a pas pu déplacer son pion, ça peut être n'importe laquelle de ses deux cartes
-    mutating func echangerCarte(carte : TCarte, partie : TPartie)
+    mutating func echangerCarte(carte : TCarte, partie : inout TPartie)
 
     //existeDeplacement : TJoueur -> Bool
     //Résultat: retourne true si le joueur peut déplacer au moins un de ses pions en vie avec les cartes qu'il a
@@ -54,42 +54,42 @@ protocol TJoueur{
     func getPion(x : Int, y : Int) -> TPion
 }
 
-class Joueur {
+class Joueur : TJoueur {
     private var _couleur : String
-    private var _cartes : [Carte]=[] //rien a la place de deux cartes vide
-    private var _caseMaitre : Position
-    var pions : Array<Pion> = Array()
-
-    init(couleur:String, posMaitre : Position) {
+    private var _cartes : [TCarte]=[] //rien a la place de deux cartes vide
+    private var _caseMaitre : TPosition
+    private var pions : Array<TPion> = Array()
+    
+    required init(couleur:String, posMaitre:TPosition) {
         self._couleur = couleur
         self._caseMaitre = posMaitre
         self.pions.reserveCapacity(5)
         for _ in 0..<4 {
-        	self.pions.append(Pion(couleur:self._couleur, type:"eleve"))
+            self.pions.append(Pion(couleur:self._couleur, type:"eleve"))
         }
         self.pions.append(Pion(couleur:self._couleur, type:"maitre"))
     }
-
+    
     var couleur : String {return self._couleur}
-    var caseMaitre : Position {return self._caseMaitre}
-
-    func getCartes()  -> [Carte] {
+    var caseMaitre : TPosition {return self._caseMaitre}
+    
+    func getCartes()  -> [TCarte] {
         return _cartes
     }
-
-    func getPionsEnVie() -> [Pion] {
-    	var pions : [Pion] = []
-    	for p in pions {
-    		if(p.estVivant){
-    			pions.append(p)
-    		}
-    	}
-    	return pions
+    
+    func getPionsEnVie() -> [TPion] {
+        var pions : [TPion] = []
+        for p in pions {
+            if(p.estVivant){
+                pions.append(p)
+            }
+        }
+        return pions
     }
-
-    func echangerCarte(carte : Carte, partie : Partie)  {
-    	// TODO : verif que la carte a permis le deplacement => que cette carte echange ou sinon les deux
-    	if(self.existeCarte(nom:carte.nom)){
+    
+    func echangerCarte(carte : TCarte, partie : inout TPartie)  {
+        // TODO : verif que la carte a permis le deplacement => que cette carte echange ou sinon les deux
+        if(self.existeCarte(nom:carte.nom)){
             if(self._cartes[0].nom == carte.nom ){
                 self._cartes[0]=partie.carteMilieu
                 partie.carteMilieu=carte
@@ -98,66 +98,66 @@ class Joueur {
                 partie.carteMilieu=carte
             }
             
-    	}else {
-    		fatalError("Mauvaise carte")
-    	}
+        }else {
+            fatalError("Mauvaise carte")
+        }
     }
-
+    
     func existeDeplacement() -> Bool { return false}
-
+    
     func existePion(x : Int, y : Int) -> Bool {
-    	var existe : Bool = false
-    	var i : Int = 0
-    	while existe == false {
-    		let p : Pion = pions[i]
-    		if let pos = p.position {
-    			if pos.coordonnees == (x,y){
-    				existe = true
-    			}
-    		}
-    		i+=1
-    	}
-     	return false
- 	}
-
-    func existeCarte(nom : String) -> Bool { 
-    	if self._cartes[0].nom==nom || self._cartes[1].nom==nom 	{
-    		return true
-    		}else {
-    			return false
-    		}
+        var existe : Bool = false
+        var i : Int = 0
+        while existe == false {
+            let p : TPion = pions[i]
+            if let pos = p.position {
+                if pos.coordonnees == (x,y){
+                    existe = true
+                }
+            }
+            i+=1
+        }
+        return false
     }
-
-    func getCarte(nom : String) throws -> Carte {
-    	if(existeCarte(nom : nom)) {
-    	    if(self._cartes[0].nom == nom ){
-    			return self._cartes[0]
-    		}else {
-    			return self._cartes[1]
-    		}	
-    	}else {
-    		fatalError("La carte n'existe pas")
-    	}
+    
+    func existeCarte(nom : String) -> Bool {
+        if self._cartes[0].nom==nom || self._cartes[1].nom==nom     {
+            return true
+        }else {
+            return false
+        }
     }
-
-    func getPion(x : Int, y : Int) -> Pion {
-    	var existe : Bool = false
-    	var i : Int = 0
-    	while existe == false {
-    		let p : Pion = pions[i]
-    		if let pos = p.position {
-    			if pos.coordonnees == (x,y){
-    				existe = true
-    			}
-    		}
-    		i+=1
-    	}
-    	if(existe==true){
-    		i-=1
-    		return pions[i]
-    	}else {
-    		fatalError("Le pion n'est pas present")
-    	}
+    
+    func getCarte(nom : String)  -> TCarte {
+        if(existeCarte(nom : nom)) {
+            if(self._cartes[0].nom == nom ){
+                return self._cartes[0]
+            }else {
+                return self._cartes[1]
+            }
+        }else {
+            fatalError("La carte n'existe pas")
+        }
+    }
+    
+    func getPion(x : Int, y : Int) -> TPion {
+        var existe : Bool = false
+        var i : Int = 0
+        while existe == false {
+            let p : TPion = pions[i]
+            if let pos = p.position {
+                if pos.coordonnees == (x,y){
+                    existe = true
+                }
+            }
+            i+=1
+        }
+        if(existe==true){
+            i-=1
+            return pions[i]
+        }else {
+            fatalError("Le pion n'est pas present")
+        }
     }
 
 }

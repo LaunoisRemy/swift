@@ -85,17 +85,17 @@ class Pion:TPion {
     var estVivant : Bool
     private var _couleur : String
     private var _type : String
-    var position : Position?
+    var position : TPosition?
 
     required init(couleur:String,type:String){
-        self.estVivant = true 
+        self.estVivant = true
         self._couleur=couleur
         self._type=type
-        self.position = nil 
+        self.position = nil
     }
-
+    
     var couleur : String {return self._couleur}
-
+    
     var type : String {return self._type}
     // TO DO :  faire une fonction qui permet de retrouver une position avec x et y ... on suppose que c'est la fonction coordToPos(x,y)
     func peutBouger(joueur : Joueur, x : Int, y : Int) -> Bool {
@@ -104,25 +104,25 @@ class Pion:TPion {
                 let pos=coordToPos(x:x,y:y)
                 if joueur.couleur==self.couleur && pos.estOccupee==false{
                     return true
-                }   
-            }  
+                }
+            }
         }
         return false
     }
-        
-
+    
+    
     func descriptionPion() -> String {
         var pos:String=""
         if let p=self.position{
-           pos+="("+String(p.coordonnees.0)+","
-           pos+=String(p.coordonnees.1)+")"
+            pos+="("+String(p.coordonnees.0)+","
+            pos+=String(p.coordonnees.1)+")"
         }
-
+        
         return "Le pion est de couleur: "+self.couleur+"\n C'est un pion : "+self.type+"\n Il est à la position : "+pos
     }
-
-
-
+    
+    
+    
     func bougerPion(x : Int, y : Int) {
         let pos=coordToPos(x:x,y:y)
         self.position!.estOccupee=false
@@ -168,11 +168,11 @@ protocol TCarte {
 }
 
 
-struct Carte{
+struct Carte : TCarte {
     private var _nom : String
     private var _couleur : String
     private var _motif : [(Int,Int)]
-
+    
     init(nom:String,couleur:String,motif:[(Int,Int)]){
         self._nom=nom
         self._couleur=couleur
@@ -180,9 +180,9 @@ struct Carte{
     }
     var nom:String {return self._nom}
     var couleur:String {return self._couleur}
-
+    
     func getMotif() -> [(Int,Int)] {return _motif}
-
+    
     func descriptionCarte() -> String{
         
         var pos:String="["
@@ -193,7 +193,7 @@ struct Carte{
         pos+="]"
         return "Ceci est la carte : "+self.nom+"\n Voici les déplacements associés : "+pos
     }
-
+    
     func deplacementAppartientMotif(x : Int, y : Int) -> Bool{
         
         var check:Bool=false

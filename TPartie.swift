@@ -71,7 +71,7 @@ class Partie : TPartie {
 // x sens horizontale a partir de la case noir et y vertical 
 class Partie : TPartie{
     
-    private var grille:[[Position]]=[]
+    private var grille:[[TPosition]]=[]
     var carteMilieu:TCarte!
     private var deck:[TCarte]=[]
     private var _commence:TJoueur!
@@ -85,6 +85,7 @@ class Partie : TPartie{
     
     private let j1:TJoueur
     private let j2:TJoueur
+
     required init(){
         // Initialisation des Cartes
         self.deck.reserveCapacity(6)
@@ -144,37 +145,27 @@ class Partie : TPartie{
     
     
     private func initPosPions(j: inout TJoueur){
-        var i:Int=0
+        //var i:Int=0
+        var pionsJc : [TPion] = joueurCourant.getPionsEnVie()
+        if j.couleur=="bleu"{
+            positionPourJoueur(pionsJc :&pionsJc, ligne : 4)
+        }else{
+            positionPourJoueur(pionsJc :&pionsJc, ligne : 0)      
+        }       
+    }
+    private func positionPourJoueur(pionsJc : inout [TPion], ligne : Int) {
         let poseleve:[Int]=[0,1,3,4]
         let posmaitre:Int=2
-        if j.couleur=="bleu"{
-            for element in joueurCourant.getPionsEnVie(){
-                if element.type=="eleve"{
-                    element.position=self.grille[0][poseleve[i]]
-                    i+=1
-                }
-                else{
-                    element.position=self.grille[0][posmaitre]
-                }
-                
+        for i in 0...pionsJc.count {
+            if pionsJc[i].type=="eleve"{
+                pionsJc[i].position=self.grille[ligne][poseleve[i]]
+                 //i+=1
+            }
+            else{
+                pionsJc[i].position=self.grille[ligne][posmaitre]
             }
         }
-        else{
-            for element in joueurCourant.getPionsEnVie(){
-                if element.type=="eleve"{
-                    element.position=self.grille[4][poseleve[i]]
-                    i+=1
-                }
-                else{
-                    element.position=self.grille[4][posmaitre]
-                }
-                
-            }
-            
-        }
-        
     }
-    
     
     
     
@@ -207,7 +198,7 @@ class Partie : TPartie{
          self.joueurAdverse=tmp
          */
         
-        if self.joueurCourant===self.j1{
+        if self.joueurCourant!==self.j1{
             self.joueurCourant=self.j2
             self.joueurAdverse=self.j1
         }

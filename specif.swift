@@ -205,6 +205,362 @@ struct Carte : TCarte {
         return check
     }
 }
+protocol TPartie{
+    //init: -> TPartie
+    //Résultat : RESPECTERE L'ORDRE : 
+    //  création des 16 cartes
+    //  création du plateuu qui est une grille de TPositions de taille 5x5
+    //  attribution de la carteMilieu (TCarte)
+    //  création des 10 pions (5 rouges dont 4 élèves et un maître, et 5 bleus dont 4 élèves et un maître)
+    //  création des 2 joueurs (un Rouge et un Bleu)
+    //  placement des pions tel que le maître soit au milieu de la première ligne devant le joueur de sa couleur et les élèves autour de celu-ci, ces cases seront donc occupée.
+    //Pré : RESPECTER L'ORDRE: créer cartes avant la grille, le plateau avant les pions, et les pions avant les joueurs.
+    //Post: finDePartie(init()) == false et aGagne == nil
+    init()
+
+    
+    //aGagne : TPartie -> String
+    //Résultat: retourne la couleur du joueur qui a gagné. (celui qui a tué le maitre de l'autre ou qui a positionné son maitre est sur l'arche de l'autre (la case de départ de son maitre))
+    //Pré: finDePartie == true
+    var aGagne:String? {get set}
+
+    //commence : TPartie -> TJoueur
+    //Résultat: retoune le joueur qui a la même couleur que la carteMilieu
+    //Pré: la partie est créée
+    var commence:TJoueur! {get}
+
+    //joueurCourant : TPartie -> TJoueur
+    //Résultat: renvoie le joueur qui est en train de jouer
+    //Pré : pour le set, il faut envoyer un TJoueur
+    var joueurCourant:TJoueur! {get set}
+
+    //joueurAdverse : TPartie -> TJoueur
+    //Résultat: renvoie le joueur adverse du joueur courant
+    //Pré : Envoi le joueur courant en paramètre
+    var joueurAdverse:TJoueur! {get set}
+
+    //carteMilieu : TPartie -> TCarte
+    //Pré: les carte ont déjà été distribuées 
+    //Résultat: retourne la carte du milieu du plateau
+    var carteMilieu:TCarte! {get set}
+
+    //finPartie : TPartie -> Bool
+    //Résultat: retourne True si le joueurCourant capture le maître de joueurAdverse “Voie de la Pierre” ou si le maître de joueurCourant va sur la case arche de joueurAdverse (la case de départ du Maitre) “Voie du Ruisseau
+    func finPartie() -> Bool
+    
+    //changerJoueur : TPartie
+    //Résulat: le joueurCourant devient le joueurAdverse et inversement
+    func changerJoueur()
+
+
+}
+
+// x sens horizontale a partir de la case noir et y vertical 
+class Partie : TPartie{
+    
+    private var grille:[[TPosition]]=[]
+    var carteMilieu:TCarte!
+    private var deck:[TCarte]=[]
+    private var _commence:TJoueur!
+    var joueurCourant:TJoueur!
+    var joueurAdverse:TJoueur!
+    var aGagne:String?
+    var commence:TJoueur!
+    
+    
+    //{return self._commence}
+    
+    private let j1:TJoueur
+    private let j2:TJoueur
+
+    required init(){
+        // Initialisation des Cartes
+        self.deck.reserveCapacity(6)
+        self.deck.append(Carte(nom:"lapin",couleur:"rouge",motif:[(1,1),(2,0),(-1,-1)]))
+        self.deck.append(Carte(nom:"boeuf",couleur:"rouge",motif:[(1,0),(0,1),(0,-1)]))
+        self.deck.append(Carte(nom:"cobra",couleur:"rouge",motif:[(-1,0),(1,1),(1,-1)]))
+        self.deck.append(Carte(nom:"elephant",couleur:"bleu",motif:[(-1,0),(-1,1),(1,0),(1,1)]))
+        self.deck.append(Carte(nom:"dragon",couleur:"bleu",motif:[(2,1),(-2,1),(-1,-1),(1,-1)]))
+        self.deck.append(Carte(nom:"tigre",couleur:"bleu",motif:[(0,2),(0,-1)]))
+        
+        //Création de la Grille. la position (0,0) correspont au coin en haut a gauche du plateau
+        for y in 0..<5{
+            var ligne:[Position]=[]
+            for x in 0..<5{
+                ligne.append(Position(x:x,y:y))
+                self.grille.append(ligne)
+                
+            }
+        }
+        
+        //Attribution de la carte situé au Milieu
+        let milieu:Int=Int.random(in: 0..<6)
+        self.carteMilieu=self.deck[milieu]
+        self.deck.remove(at:milieu)
+        
+        
+        //Création des joueurs
+        self.j1=Joueur(couleur:"bleu",posMaitre:self.grille[0][2])
+        self.j2=Joueur(couleur:"rouge",posMaitre:self.grille[4][2])
+        
+        
+        //Attribution premier joueur
+        if self.carteMilieu.couleur==self.j1.couleur{
+            self._commence=self.j1
+            self.joueurCourant=self.j1
+            self.joueurAdverse=self.j2
+        }
+        else{
+            
+            self._commence=self.j2
+            self.joueurCourant=self.j2
+            self.joueurAdverse=self.j1
+        }
+        
+        
+        //Positionnement des Pions du joueur
+        // n'étant pas précisé, on a décidé de placer le joueur bleu sur la ligne 0 et le joueur Rouge sur la ligne 4
+        //Joueur courant
+        initPosPions(j:&self.joueurCourant)
+        //Joueur Adverse
+        initPosPions(j:&self.joueurAdverse)
+        
+        //Initialisation de la variable aGagne
+        self.aGagne=nil
+    }
+    
+    
+    
+    private func initPosPions(j: inout TJoueur){
+        //var i:Int=0
+        var pionsJc : [TPion] = joueurCourant.getPionsEnVie()
+        if j.couleur=="bleu"{
+            positionPourJoueur(pionsJc :&pionsJc, ligne : 4)
+        }else{
+            positionPourJoueur(pionsJc :&pionsJc, ligne : 0)      
+        }       
+    }
+    private func positionPourJoueur(pionsJc : inout [TPion], ligne : Int) {
+        let poseleve:[Int]=[0,1,3,4]
+        let posmaitre:Int=2
+        for i in 0...pionsJc.count {
+            if pionsJc[i].type=="eleve"{
+                pionsJc[i].position=self.grille[ligne][poseleve[i]]
+                 //i+=1
+            }
+            else{
+                pionsJc[i].position=self.grille[ligne][posmaitre]
+            }
+        }
+    }
+    
+    
+    
+    func finPartie() -> Bool{
+        var indice_adv:Int=0
+        var indice_cour:Int=0
+        
+        //Trouve le pions maitre dans la liste des pions du joueur adverse
+        while self.joueurAdverse.getPionsEnVie()[indice_adv].type != "maitre"{
+            indice_adv+=1
+        }
+        //Trouve le pions maitre dans la liste des pions du joueur courant
+        while self.joueurCourant.getPionsEnVie()[indice_cour].type != "maitre"{
+            indice_cour+=1
+        }
+        //Le pion maitre adverse est vivant ou Le pion maitre courant est sur la case maitre adversaire
+        let maitreAdverse : Bool = self.joueurAdverse.getPionsEnVie()[indice_adv].estVivant
+        
+        let jcPion:TPion=self.joueurCourant.getPionsEnVie()[indice_cour]
+        let posMaitreJc : TPosition = jcPion.position!
+        return  maitreAdverse != true ||  posMaitreJc.coordonnees == self.joueurAdverse.caseMaitre.coordonnees
+        
+    }
+    
+    
+    func changerJoueur(){
+        /* facon plus rapide mais ne sais pas si fonctionnelle
+         let tmp:Joueur=self.joueurCourant
+         self.joueurCourant=self.joueurAdverse
+         self.joueurAdverse=tmp
+         */
+        
+        if self.joueurCourant.couleur==self.j1.couleur{
+            self.joueurCourant=self.j2
+            self.joueurAdverse=self.j1
+        }
+        else{
+            self.joueurCourant=self.j1
+            self.joueurAdverse=self.j2
+        }
+    }
+    
+    
+}
+
+protocol TJoueur{
+    //init: -> TJoueur
+    //Résultat: cette fonction crée un joueur avec une couleur, 4 pions élèves et un pion maître (tous en vie) , avec deux cartes vides
+    //Post: les pions auront la même couleur que le joueur
+    init(couleur:String,posMaitre : TPosition)
+    
+    //couleur : TJoueur -> String
+    //Résultat : retourne la couleur du joueur, soit "bleu", soit "rouge"
+    //Pré: le pion a été crée auparavant
+    var couleur : String {get}
+
+
+    //caseMaitre : TJoueur -> TPosition
+    //Résultat : retourne la TPosition de la case maitre du joueur (c'est la case située au centre de la première ligne devant le joueur)
+    //Pré : la grille a été créée auparavant
+    var caseMaitre : TPosition {get}
+
+    //getCartes : TJoueur
+    //Resultat: retourne les deux cartes du joueur
+    //Pré: les cartes ont été distribuées
+    func getCartes() -> [TCarte]
+
+    //getPionsEnVie : TJoueur -> [TPion]
+    //Résultat : retourne les pions en vie du joueur
+    //Pré : le joueur à été créé
+    func getPionsEnVie() -> [TPion]
+
+    //echangerCarte : TJoueur x TCarte x TPartie-> TJoueur
+    //Résultat: echange la carte du joueur passée en paramètre avec la carteMilieu du plateau
+    //Pré: la carte doit appartenir au joueur, et s'il a pu déplacer son pion, ça doit être la carte qu'il a utilisé. Si il n'a pas pu déplacer son pion, ça peut être n'importe laquelle de ses deux cartes
+    mutating func echangerCarte(carte : TCarte, partie : inout TPartie)
+
+    //existeDeplacement : TJoueur -> Bool
+    //Résultat: retourne true si le joueur peut déplacer au moins un de ses pions en vie avec les cartes qu'il a
+    //Pré: le joueur à été créé
+    func existeDeplacement() -> Bool
+
+    //existePion : TJoueur x Int x Int -> Bool
+    //Résultat: retourne true si le joueur possède un pion en vie à la position passée en paramètres
+    func existePion(x : Int, y : Int) -> Bool
+
+    //existeCarte : TJoueur x String -> Bool
+    //Résultat: retourne true si le joueur possède une carte avec le nom passé en paramètres
+    func existeCarte(nom : String) -> Bool
+
+    //getCarte : TJoueur x String -> TCarte
+    //Résultat: retourne la TCarte du joueur qui a le nom passé en paramètre
+    //Pré: existeCarte(joueur,nom)==true
+    func getCarte(nom : String) -> TCarte
+
+    //getPion : TJoueur x Int x Int -> TPion
+    //Résultat: retoune le TPion du joueur qui se trouve sur la position passée en paramètre
+    //Pré: existePion(joueur, TPosition ) == true
+    func getPion(x : Int, y : Int) -> TPion
+}
+
+class Joueur : TJoueur {
+    private var _couleur : String
+    private var _cartes : [TCarte]=[] //rien a la place de deux cartes vide
+    private var _caseMaitre : TPosition
+    private var pions : Array<TPion> = Array()
+    
+    required init(couleur:String, posMaitre:TPosition) {
+        self._couleur = couleur
+        self._caseMaitre = posMaitre
+        self.pions.reserveCapacity(5)
+        for _ in 0..<4 {
+            self.pions.append(Pion(couleur:self._couleur, type:"eleve"))
+        }
+        self.pions.append(Pion(couleur:self._couleur, type:"maitre"))
+    }
+    
+    var couleur : String {return self._couleur}
+    var caseMaitre : TPosition {return self._caseMaitre}
+    
+    func getCartes()  -> [TCarte] {
+        return _cartes
+    }
+    
+    func getPionsEnVie() -> [TPion] {
+        var pions : [TPion] = []
+        for p in pions {
+            if(p.estVivant){
+                pions.append(p)
+            }
+        }
+        return pions
+    }
+    
+    func echangerCarte(carte : TCarte, partie : inout TPartie)  {
+        // TODO : verif que la carte a permis le deplacement => que cette carte echange ou sinon les deux
+        if(self.existeCarte(nom:carte.nom)){
+            if(self._cartes[0].nom == carte.nom ){
+                self._cartes[0]=partie.carteMilieu
+                partie.carteMilieu=carte
+            }else{
+                self._cartes[1]=partie.carteMilieu
+                partie.carteMilieu=carte
+            }
+            
+        }else {
+            fatalError("Mauvaise carte")
+        }
+    }
+    
+    func existeDeplacement() -> Bool { return false}
+    
+    func existePion(x : Int, y : Int) -> Bool {
+        var existe : Bool = false
+        var i : Int = 0
+        while existe == false {
+            let p : TPion = pions[i]
+            if let pos = p.position {
+                if pos.coordonnees == (x,y){
+                    existe = true
+                }
+            }
+            i+=1
+        }
+        return false
+    }
+    
+    func existeCarte(nom : String) -> Bool {
+        if self._cartes[0].nom==nom || self._cartes[1].nom==nom     {
+            return true
+        }else {
+            return false
+        }
+    }
+    
+    func getCarte(nom : String)  -> TCarte {
+        if(existeCarte(nom : nom)) {
+            if(self._cartes[0].nom == nom ){
+                return self._cartes[0]
+            }else {
+                return self._cartes[1]
+            }
+        }else {
+            fatalError("La carte n'existe pas")
+        }
+    }
+    
+    func getPion(x : Int, y : Int) -> TPion {
+        var existe : Bool = false
+        var i : Int = 0
+        while existe == false {
+            let p : TPion = pions[i]
+            if let pos = p.position {
+                if pos.coordonnees == (x,y){
+                    existe = true
+                }
+            }
+            i+=1
+        }
+        if(existe==true){
+            i-=1
+            return pions[i]
+        }else {
+            fatalError("Le pion n'est pas present")
+        }
+    }
+
+}
 
 
 func coordToPos(x:Int,y:Int)->Position{return Position(x:x,y:y)}

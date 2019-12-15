@@ -186,7 +186,7 @@ class Partie : TPartie{
         
         let jcPion:TPion=self.joueurCourant.getPionsEnVie()[indice_cour]
         let posMaitreJc : TPosition = jcPion.position!
-        return  maitreAdverse != true ||  posMaitreJc == self.joueurAdverse.caseMaitre
+        return  maitreAdverse != true ||  posMaitreJc.coordonnees == self.joueurAdverse.caseMaitre.coordonnees
         
     }
     
@@ -198,7 +198,7 @@ class Partie : TPartie{
          self.joueurAdverse=tmp
          */
         
-        if self.joueurCourant!==self.j1{
+        if self.joueurCourant.couleur==self.j1.couleur{
             self.joueurCourant=self.j2
             self.joueurAdverse=self.j1
         }

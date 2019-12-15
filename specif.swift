@@ -441,7 +441,7 @@ protocol TJoueur{
     //existeDeplacement : TJoueur -> Bool
     //Résultat: retourne true si le joueur peut déplacer au moins un de ses pions en vie avec les cartes qu'il a
     //Pré: le joueur à été créé
-    func existeDeplacement() -> Bool
+    func existeDeplacement(partie : TPartie) -> Bool
 
     //existePion : TJoueur x Int x Int -> Bool
     //Résultat: retourne true si le joueur possède un pion en vie à la position passée en paramètres
@@ -511,7 +511,65 @@ class Joueur : TJoueur {
         }
     }
     
-    func existeDeplacement() -> Bool { return false}
+    func existeDeplacement(partie : TPartie) -> Bool { 
+        var pionsEnVie : [TPion] = self.getPionsEnVie()
+        var i : Int = 0
+        var peutDeplacer : Bool = false
+        if (pionsEnVie.count != 0) { // Si j'ai des pionts en vie
+            while !peutDeplacer && i < pionsEnVie.count{ // si je n'ai pas trouvé de déplacement et si j'ai pas parcourus tout mes pions
+                peutDeplacer=self.parCarte(pion : pionsEnVie[i],partie : partie)
+                i+=1
+            }
+        }
+        return peutDeplacer
+    }
+    /*
+    Fonction qui permet de savoir si un déplacement est possible pour chaque carte
+    S'arrete dèsq u'il en a trouvé un ou si il a parcourus les deux cartes
+    */
+    private func parCarte ( pion : TPion,partie : TPartie) -> Bool{
+        var c : Int = 0 
+        var peutSeDeplacer : Bool = false
+        while !peutSeDeplacer && c < 2 { // pour chaque carte
+            peutSeDeplacer = chaqueMotif(pion : pion, partie : partie, c : self._cartes[c])
+            c+=1
+        }
+        return peutSeDeplacer
+       
+    }
+
+    /*
+    Fonction qui permet de savoir si un déplacement est possible pour chaque motif d'une carte
+    S'arrete dès qu'il en a trouvé un ou si il a parcourus les motifs
+    */
+    private func chaqueMotif (pion : TPion,partie : TPartie, c : TCarte) -> Bool{
+        var deplacement : [(Int,Int)] = c.getMotif()
+        var d : Int = 0
+        var peutSeDeplacer : Bool = false
+        while !peutSeDeplacer && d < deplacement.count{  // pour chaque motif d'une carte 
+            peutSeDeplacer = pourUnMotif(pion : pion, partie : partie, motif : deplacement[d])
+
+            d+=1
+        }
+        return peutSeDeplacer
+    }
+    
+    /*
+    Fonction qui permet de savoir si un déplacement est possible pour le motif
+    */
+    private func pourUnMotif (pion : TPion,partie : TPartie, motif : (Int,Int)) -> Bool{// possible pour un motif
+            let newPosX : Int = pion.position!.coordonnees.0 + motif.0
+            var newPosY : Int 
+            if(self._couleur == "bleu") {
+                newPosY =  pion.position!.coordonnees.1 + motif.1
+            }else {
+                newPosY =  pion.position!.coordonnees.1 - motif.1
+            }
+
+            return pion.peutBouger(joueur : self, x : newPosX , y : newPosY )
+
+    }
+
     
     func existePion(x : Int, y : Int) -> Bool {
         var existe : Bool = false
@@ -569,3 +627,4 @@ class Joueur : TJoueur {
     }
 
 }
+

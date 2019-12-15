@@ -394,6 +394,14 @@ class Partie : TPartie{
             self.joueurAdverse=self.j2
         }
     }
+
+    func coordToPos(x:Int,y:Int)->TPosition?{
+        if x >= 0 && y >= 0 && x < 5 && y < 5{
+            return grille[x][y]
+        }else{
+            return nil
+        }
+    }
     
     
 }
@@ -561,6 +569,3 @@ class Joueur : TJoueur {
     }
 
 }
-
-
-func coordToPos(x:Int,y:Int)->Position{return Position(x:x,y:y)}

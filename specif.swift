@@ -155,14 +155,11 @@ class Pion:TPion {
                       var pionAdv : TPion = joueurAdverse.getPion(x:x,y:y)
                       pionAdv.estVivant=false
                       pionAdv.position=nil
-                      print(" le pion est Mort")
                     }
-
                     //actualise sa position
                     self.position!.estOccupee=false
                     self.position!=pos
                     self.position!.estOccupee=true
-
                 }
             }  
     }
@@ -289,6 +286,10 @@ protocol TPartie{
 
 
     //var plateau:[[TPosition]] {get}
+<<<<<<< HEAD
+=======
+
+>>>>>>> 30117da264c434768ec7ff4a2e4824334d4dca53
     func coordToPos(x:Int,y:Int)->TPosition?
 
 
@@ -598,6 +599,7 @@ class Joueur : TJoueur {
     Fonction qui permet de savoir si un déplacement est possible pour le motif
     */
     private func pourUnMotif (pion : TPion,partie : TPartie, motif : (Int,Int)) -> Bool{// possible pour un motif
+<<<<<<< HEAD
             let newPosX : Int
             var newPosY : Int 
 
@@ -607,6 +609,14 @@ class Joueur : TJoueur {
             }else {
                 newPosX = pion.position!.coordonnees.0 - motif.0
                 newPosY = pion.position!.coordonnees.1 - motif.1
+=======
+            let newPosX : Int = pion.position!.coordonnees.0 + motif.0
+            var newPosY : Int 
+            if(self._couleur == "bleu") {
+                newPosY =  pion.position!.coordonnees.1 + motif.1
+            }else {
+                newPosY =  pion.position!.coordonnees.1 - motif.1
+>>>>>>> 30117da264c434768ec7ff4a2e4824334d4dca53
             }
 
             return pion.peutBouger(joueur : self, x : newPosX , y : newPosY, partie : partie )
@@ -671,4 +681,9 @@ class Joueur : TJoueur {
 
 
 
+<<<<<<< HEAD
 }
+=======
+}
+
+>>>>>>> 30117da264c434768ec7ff4a2e4824334d4dca53

@@ -63,7 +63,7 @@ protocol TPion {
     //peutBouger : TPion x Int x Int -> Bool
     //Résultat: true si le pion appartient au joueur, est vivant, et que la nouvelle position de ce pion ne sort pas de la grille, et n'est pas occupée par un de ses pions (de la même couleur).
     //Pré: le déplacement (x,y) par rapport à la case du joueur doit correspondre à un déplacement d'une carte du joueur
-    func peutBouger(joueur : Joueur, x : Int, y : Int) -> Bool
+    func peutBouger(joueur : TJoueur, x : Int, y : Int, partie : TPartie) -> Bool
 
 
     //descriptionPion : TPion -> String
@@ -77,7 +77,7 @@ protocol TPion {
     // ATTENTION si c'est le joueur de la couleur commence, il n'y a pas de problème on déplacera le pion de +x sur sa ligne et +y sur sa colonne
     // mais si c'est l'autre joueur les déplacement se font dans le sens opposé à cause de l'orientation du plateau: -x  sur sa ligne et -y sur sa colonne
     //Pré: peutBouger(pion, position)==vraie
-    mutating func bougerPion(x : Int, y : Int)
+    mutating func bougerPion(x : Int, y : Int, partie:TPartie)
 }
 
 
@@ -98,18 +98,42 @@ class Pion:TPion {
     
     var type : String {return self._type}
     // TO DO :  faire une fonction qui permet de retrouver une position avec x et y ... on suppose que c'est la fonction coordToPos(x,y)
-    func peutBouger(joueur : Joueur, x : Int, y : Int) -> Bool {
+    func peutBouger(joueur : TJoueur, x : Int, y : Int, partie:TPartie) -> Bool {
         if self.estVivant{
-            if x>=0 && x<=5 && y>=0 && y<=5{
-                let pos=coordToPos(x:x,y:y)
-                if joueur.couleur==self.couleur && pos.estOccupee==false{
-                    return true
-                }
+            if x>=0 && x<5 && y>=0 && y<5{
+                if let pos=partie.coordToPos(x:x,y:y){
+                    if joueur.couleur==self.couleur{
+
+                        if pos.estOccupee==false{
+                            return true    
+                        }else{
+                            if infoCase(joueur:joueur, x:x, y:y){
+                                return false
+                            }
+                           else{return true}
+                        }
+                    }  
+                }  
             }
         }
         return false
     }
-    
+    // false : ne possede pas de pion a cette case  true :joueur possde le pion 
+    private func infoCase(joueur:TJoueur, x:Int,y:Int)->Bool{
+        var existe : Bool = false
+        var i : Int = 0
+        var pionsEnVie : [TPion] = joueur.getPionsEnVie() 
+        while existe == false {
+            let p : TPion = pionsEnVie[i]
+            if let pos = p.position {
+                if pos.coordonnees == (x,y){
+                    existe = true
+                }
+            }
+            i+=1
+        }
+        return existe
+    }
     
     func descriptionPion() -> String {
         var pos:String=""
@@ -123,13 +147,25 @@ class Pion:TPion {
     
     
     
-    func bougerPion(x : Int, y : Int) {
-        let pos=coordToPos(x:x,y:y)
-        self.position!.estOccupee=false
-        self.position!=pos
-        self.position!.estOccupee=true
-        
-        
+    func bougerPion(x : Int, y : Int, partie:TPartie) {
+            if let pos=partie.coordToPos(x:x,y:y){
+                if peutBouger(joueur:partie.joueurCourant, x:x,y:y,partie:partie){
+                    //vérifie si pion adverse sur case
+                    let joueurAdverse : TJoueur = partie.joueurAdverse
+                    if infoCase(joueur:joueurAdverse,x:x,y:y){
+                        var pionAdv : TPion = joueurAdverse.getPion(x:x,y:y)
+                        pionAdv.estVivant=false
+                        pionAdv.position=nil
+                        print(" le pion est Mort")
+                    }
+
+                    //actualise sa position
+                    self.position!.estOccupee=false
+                    self.position!=pos
+                    self.position!.estOccupee=true
+
+                }
+            }  
     }
 
 }
@@ -253,6 +289,11 @@ protocol TPartie{
     func changerJoueur()
 
 
+    //var plateau:[[TPosition]] {get}
+
+    func coordToPos(x:Int,y:Int)->TPosition?
+
+
 }
 
 // x sens horizontale a partir de la case noir et y vertical 
@@ -267,6 +308,7 @@ class Partie : TPartie{
     var aGagne:String?
     var commence:TJoueur!
     
+    var plateau : [[TPosition]] { return self.grille }
     
     //{return self._commence}
     
@@ -397,7 +439,7 @@ class Partie : TPartie{
 
     func coordToPos(x:Int,y:Int)->TPosition?{
         if x >= 0 && y >= 0 && x < 5 && y < 5{
-            return grille[x][y]
+            return self.grille[y][x]
         }else{
             return nil
         }
@@ -515,7 +557,7 @@ class Joueur : TJoueur {
         var pionsEnVie : [TPion] = self.getPionsEnVie()
         var i : Int = 0
         var peutDeplacer : Bool = false
-        if (pionsEnVie.count != 0) { // Si j'ai des pionts en vie
+        if (pionsEnVie.count > 0) { // Si j'ai des pionts en vie
             while !peutDeplacer && i < pionsEnVie.count{ // si je n'ai pas trouvé de déplacement et si j'ai pas parcourus tout mes pions
                 peutDeplacer=self.parCarte(pion : pionsEnVie[i],partie : partie)
                 i+=1
@@ -525,7 +567,7 @@ class Joueur : TJoueur {
     }
     /*
     Fonction qui permet de savoir si un déplacement est possible pour chaque carte
-    S'arrete dèsq u'il en a trouvé un ou si il a parcourus les deux cartes
+    S'arrete dès qu'il en a trouvé un ou s' il a parcouru les deux cartes
     */
     private func parCarte ( pion : TPion,partie : TPartie) -> Bool{
         var c : Int = 0 
@@ -540,7 +582,7 @@ class Joueur : TJoueur {
 
     /*
     Fonction qui permet de savoir si un déplacement est possible pour chaque motif d'une carte
-    S'arrete dès qu'il en a trouvé un ou si il a parcourus les motifs
+    S'arrete dès qu'il en a trouvé un ou s'il a parcouru tous les motifs
     */
     private func chaqueMotif (pion : TPion,partie : TPartie, c : TCarte) -> Bool{
         var deplacement : [(Int,Int)] = c.getMotif()
@@ -566,7 +608,7 @@ class Joueur : TJoueur {
                 newPosY =  pion.position!.coordonnees.1 - motif.1
             }
 
-            return pion.peutBouger(joueur : self, x : newPosX , y : newPosY )
+            return pion.peutBouger(joueur : self, x : newPosX , y : newPosY, partie : partie )
 
     }
 
@@ -610,7 +652,7 @@ class Joueur : TJoueur {
         var existe : Bool = false
         var i : Int = 0
         while existe == false {
-            let p : TPion = pions[i]
+            let p : TPion = self.pions[i]
             if let pos = p.position {
                 if pos.coordonnees == (x,y){
                     existe = true
@@ -625,6 +667,8 @@ class Joueur : TJoueur {
             fatalError("Le pion n'est pas present")
         }
     }
+
+
 
 }
 

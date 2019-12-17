@@ -108,14 +108,18 @@ class Pion:TPion {
     
     func peutBouger(joueur : TJoueur, x : Int, y : Int, partie:TPartie) -> Bool {
         if self.estVivant{
-            if x>=0 && x<5 && y>=0 && y<5{
-                if let pos=partie.coordToPos(x:x,y:y){
+            let pos : (Int,Int) = newPos(x:x,y:y,partie:partie)
+            let newPosX : Int = pos.0
+            let newPosY : Int = pos.1
+            
+            if newPosX>=0 && newPosX<5 && newPosY>=0 && newPosY<5{
+                if let pos=partie.coordToPos(x:newPosX,y:newPosY){
                     if joueur.couleur==self.couleur{
                         if pos.estOccupee==false{
                             return true
                         }else{
                             // on regarde si le joueur possède un pion en x,y
-                            if infoCase(joueur:joueur, x:x, y:y){
+                            if infoCase(joueur:joueur, x:newPosX, y:newPosY){
                                 return false
                             }
                             else{return true}
@@ -126,7 +130,18 @@ class Pion:TPion {
         }
         return false
     }
-    
+    private func newPos(x:Int,y:Int,partie:TPartie) -> (Int,Int){
+        var newPosX : Int = self.position!.coordonnees.0
+        var newPosY : Int = self.position!.coordonnees.1
+        if(self._couleur == "bleu") {
+            newPosX += x
+            newPosY += y
+        }else {
+            newPosX -= x
+            newPosY -= y
+        }
+        return (newPosX,newPosY)
+    }
     // false : ne possede pas de pion a cette case  true :joueur possde le pion
     private func infoCase(joueur:TJoueur,x:Int,y:Int)->Bool{
         var existe : Bool = false
@@ -154,13 +169,18 @@ class Pion:TPion {
     }
     
     func bougerPion(x : Int, y : Int, partie:TPartie){
-        if let pos=partie.coordToPos(x:x,y:y){
-            if peutBouger(joueur:partie.joueurCourant, x:x,y:y,partie:partie){
+        let posTmp : (Int,Int) = newPos(x:x,y:y,partie:partie)
+        let newPosX : Int = posTmp.0
+        let newPosY : Int = posTmp.1
+        if let pos=partie.coordToPos(x:newPosX,y:newPosY){
+            
+            
+            if peutBouger(joueur:partie.joueurCourant, x:newPosX,y:newPosY,partie:partie){
                 //vérifie si pion adverse sur case
                 let joueurAdverse : TJoueur = partie.joueurAdverse
-                if infoCase(joueur:joueurAdverse,x:x,y:y){
+                if infoCase(joueur:joueurAdverse,x:newPosX,y:newPosY){
                     // on actualise les propriétés du pion adverse
-                    var pionAdv : TPion = joueurAdverse.getPion(x:x,y:y)
+                    var pionAdv : TPion = joueurAdverse.getPion(x:newPosX,y:newPosY)
                     pionAdv.estVivant=false
                     pionAdv.position=nil
                 }
@@ -646,7 +666,7 @@ class Joueur : TJoueur {
     func existePion(x : Int, y : Int) -> Bool {
         var existe : Bool = false
         var i : Int = 0
-        if x>=0 && x<5 && y>0 && y<5{
+        if x>=0 && x<5 && y>=0 && y<5{
             while existe == false && i<self.pions.count{
                 let p : TPion = pions[i]
                 if let pos = p.position {

@@ -9,3 +9,12 @@ position : il manque un accès retour a la position en utilisant x et y ( utilis
 Le type Tplateau a été supprimé, mais pas remplacé dans les fonctions l'utilisant
 
 On doit avoir un accès a nos pions pour changer leurs positions
+
+Nous avons crée une fonction CoordToPos car nous l'avions demandé dans les remarques mais elle n'a pas été faite. 
+
+
+
+MAIN : le main n'avait pas été modifié au niveau des fonctions qui faisaient appel au type plateau.
+
+
+

@@ -1,5 +1,6 @@
+
 //je crée la partie :
-var p : TPartie = TPartie()
+var p : TPartie = Partie()
 
 //affectation du joueur courant
 p.joueurCourant = p.commence
@@ -12,7 +13,7 @@ while (!p.finPartie()) {
        print(pion.descriptionPion())
     }
 		
- 	if(p.joueurCourant.existeDeplacement()){ //vérifie si un déplacement est possible avec les cartes qu'il possède
+ 	if(p.joueurCourant.existeDeplacement(partie:p)){ //vérifie si un déplacement est possible avec les cartes qu'il possède
 
 		//variable pour déterminer si le tour est terminé (un pion a été bougé ou non)
 		var finTour : Bool = false
@@ -53,7 +54,7 @@ while (!p.finPartie()) {
                 y1 = w! // w != nil
 
             } while !(p.joueurCourant.existePion(x : x1, y : y1)) //redemande un pion tant qu'il ne saisie pas la position d'un de ses pions en vie
-			let pionChoisi : TPion = p.joueurCourant.getPion(x : x1, y : y1) //récupérer le pion choisi
+			var pionChoisi : TPion = p.joueurCourant.getPion(x : x1, y : y1) //récupérer le pion choisi
 
 	        //Le joueur choisis maintenant une carte 
 			var nomCarteChoisie : String
@@ -96,11 +97,12 @@ while (!p.finPartie()) {
             } while !( carteChoisie.deplacementAppartientMotif(x : x2, y : y2) ) //vérifier que le déplacement appartient à la carte que le joueur à choisi
             			
             //vérifier que le mouvement que le mouvement choisit est possible avec sa carte et son pion qu'il a choisi
-	    	if (pionChoisi.peutBouger(x : x2, y : y2)){
-                pionChoisi.bougerPion(x : x2, y : y2) //je tue le pion adverse si besoin lorsque je bouge
+	    	if (pionChoisi.peutBouger(joueur:p.joueurCourant,x:x2, y:y2, partie:p)){
+                pionChoisi.bougerPion(x:x2, y:y2,partie:p)  //je tue le pion adverse si besoin lorsque je bouge
 
 	        	//Une fois que le joueur a bougé son pion: la carte utilisée est échangée avec celle du milieu 
-	        	p.joueurCourant.echangerCarte(carte : carteChoisie, plateau : p.plateau)
+	        	var localp:TPartie=p
+                p.joueurCourant.echangerCarte(carte:carteChoisie, partie:&localp)
 			  
 			    //le tour est fini
 			    finTour = true
@@ -130,7 +132,8 @@ while (!p.finPartie()) {
 		let carteChoisie : TCarte = p.joueurCourant.getCarte(nom : nomCarteChoisie ) //récupérer la carte choisie
 
     	//echanger les cartes 
-		p.joueurCourant.echangerCarte(carte : carteChoisie, plateau : p.plateau)
+        var localp:TPartie=p
+		p.joueurCourant.echangerCarte(carte:carteChoisie, partie:&localp)
 	}
         
 	//changement du joueur courant

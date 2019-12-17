@@ -214,10 +214,17 @@ struct Carte : TCarte {
     private var _motif : [(Int,Int)]
     
     init(nom:String,couleur:String,motif:[(Int,Int)]){
+        //Vérification de la couleur
+        if couleur=="rouge" || couleur=="bleu"{
+            self._couleur=couleur
+        }
+        else{
+            self._couleur="erreur"
+        }
         self._nom=nom
-        self._couleur=couleur
         self._motif=motif
     }
+
     var nom:String {return self._nom}
     var couleur:String {return self._couleur}
     
@@ -227,20 +234,22 @@ struct Carte : TCarte {
         
         var pos:String="["
         for element in self._motif{
-            pos+="("+String(element.0)+","
-            pos+=String(element.1)+") "
+            pos+="("+String(element.0)+","+String(element.1)+"),"
         }
         pos+="]"
         return "Ceci est la carte : "+self.nom+"\n Voici les déplacements associés : "+pos
     }
     
     func deplacementAppartientMotif(x : Int, y : Int) -> Bool{
-        
         var check:Bool=false
-        for element in self._motif{
+        var i:Int=0
+        let motif:[(Int,Int)]=self.getMotif()
+        while check==false && i<motif.count{
+            let element:(Int,Int)=motif[i]
             if x==element.0 && y==element.1{
                 check=true
             }
+            i+=1
         }
         return check
     }
@@ -292,7 +301,7 @@ protocol TPartie{
     //Résulat: le joueurCourant devient le joueurAdverse et inversement
     func changerJoueur()
 
-
+    
     //var plateau:[[TPosition]] {get}
     func coordToPos(x:Int,y:Int)->TPosition?
 
@@ -356,7 +365,6 @@ class Partie : TPartie{
             self.joueurAdverse=self.j2
         }
         else{
-            
             self._commence=self.j2
             self.joueurCourant=self.j2
             self.joueurAdverse=self.j1
@@ -377,21 +385,20 @@ class Partie : TPartie{
     
     
     private func initPosPions(j: inout TJoueur){
-        //var i:Int=0
         var pionsJc : [TPion] = joueurCourant.getPionsEnVie()
         if j.couleur=="bleu"{
-            positionPourJoueur(pionsJc :&pionsJc, ligne : 4)
+            positionPourJoueur(pionsJc :&pionsJc, ligne : 0)
         }else{
-            positionPourJoueur(pionsJc :&pionsJc, ligne : 0)      
+            positionPourJoueur(pionsJc :&pionsJc, ligne : 4)      
         }       
     }
     private func positionPourJoueur(pionsJc : inout [TPion], ligne : Int) {
         let poseleve:[Int]=[0,1,3,4]
         let posmaitre:Int=2
+        //placement des pions en fonction de leur type
         for i in 0...pionsJc.count {
             if pionsJc[i].type=="eleve"{
                 pionsJc[i].position=self.grille[ligne][poseleve[i]]
-                 //i+=1
             }
             else{
                 pionsJc[i].position=self.grille[ligne][posmaitre]
@@ -413,23 +420,18 @@ class Partie : TPartie{
         while self.joueurCourant.getPionsEnVie()[indice_cour].type != "maitre"{
             indice_cour+=1
         }
-        //Le pion maitre adverse est vivant ou Le pion maitre courant est sur la case maitre adversaire
+        //On vérifie l'état du pion maitre adverse
         let maitreAdverse : Bool = self.joueurAdverse.getPionsEnVie()[indice_adv].estVivant
         
+        //stocke la position du pion maitre Courant
         let jcPion:TPion=self.joueurCourant.getPionsEnVie()[indice_cour]
         let posMaitreJc : TPosition = jcPion.position!
+        // .../ si la position du pion maitre courant est sur la case maitre adverse
         return  maitreAdverse != true ||  posMaitreJc.coordonnees == self.joueurAdverse.caseMaitre.coordonnees
-        
     }
     
     
     func changerJoueur(){
-        /* facon plus rapide mais ne sais pas si fonctionnelle
-         let tmp:Joueur=self.joueurCourant
-         self.joueurCourant=self.joueurAdverse
-         self.joueurAdverse=tmp
-         */
-        
         if self.joueurCourant.couleur==self.j1.couleur{
             self.joueurCourant=self.j2
             self.joueurAdverse=self.j1
@@ -442,6 +444,8 @@ class Partie : TPartie{
 
     func coordToPos(x:Int,y:Int)->TPosition?{
         if x >= 0 && y >= 0 && x < 5 && y < 5{
+            // on rappelle que x représente les déplacement horizentaux
+            // et y ceux verticaux
             return self.grille[y][x]
         }else{
             return nil
@@ -514,7 +518,12 @@ class Joueur : TJoueur {
     private var pions : Array<TPion> = Array()
     
     required init(couleur:String, posMaitre:TPosition) {
-        self._couleur = couleur
+        if couleur=="rouge" || couleur=="bleu"{
+            self._couleur = couleur
+        }
+        else{
+            self._couleur="erreur"
+        }
         self._caseMaitre = posMaitre
         self.pions.reserveCapacity(5)
         for _ in 0..<4 {

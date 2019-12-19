@@ -169,13 +169,11 @@ class Pion:TPion {
     }
     
     func bougerPion(x : Int, y : Int, partie:TPartie){
-        let posTmp : (Int,Int) = newPos(x:x,y:y,partie:partie)
-        let newPosX : Int = posTmp.0
-        let newPosY : Int = posTmp.1
-        if let pos=partie.coordToPos(x:newPosX,y:newPosY){
-            
-            
-            if peutBouger(joueur:partie.joueurCourant, x:newPosX,y:newPosY,partie:partie){
+        if peutBouger(joueur:partie.joueurCourant, x:x,y:y,partie:partie){
+            let posTmp : (Int,Int) = newPos(x:x,y:y,partie:partie)
+            let newPosX : Int = posTmp.0
+            let newPosY : Int = posTmp.1
+            if let pos=partie.coordToPos(x:newPosX,y:newPosY){
                 //vérifie si pion adverse sur case
                 let joueurAdverse : TJoueur = partie.joueurAdverse
                 if infoCase(joueur:joueurAdverse,x:newPosX,y:newPosY){
@@ -184,7 +182,6 @@ class Pion:TPion {
                     pionAdv.estVivant=false
                     pionAdv.position=nil
                 }
-                
                 //actualise la position du joueur courant
                 self.position!.estOccupee=false
                 self.position!=pos
@@ -424,10 +421,14 @@ class Partie : TPartie{
         //placement des pions en fonction de leur type
         for i in 0...pionsJc.count - 1 {
             if pionsJc[i].type=="eleve"{
-                pionsJc[i].position=self.grille[ligne][poseleve[i]]
+                var posgrille : TPosition = self.grille[ligne][poseleve[i]]
+                pionsJc[i].position=posgrille
+                posgrille.estOccupee=true
             }
             else{
-                pionsJc[i].position=self.grille[ligne][posmaitre]
+                var posgrille : TPosition = self.grille[ligne][posmaitre]
+                pionsJc[i].position=posgrille
+                posgrille.estOccupee=true
             }
         }
     }
@@ -436,24 +437,27 @@ class Partie : TPartie{
     
     func finPartie() -> Bool{
         var indice_adv:Int=0
-        var indice_cour:Int=0
+        let pionsEnVieJa : [TPion] = self.joueurAdverse.getPionsEnVie()
         
-        //Trouve le pions maitre dans la liste des pions du joueur adverse
-        while self.joueurAdverse.getPionsEnVie()[indice_adv].type != "maitre"{
-            indice_adv+=1
-        }
-        //Trouve le pions maitre dans la liste des pions du joueur courant
-        while self.joueurCourant.getPionsEnVie()[indice_cour].type != "maitre"{
+        var indice_cour:Int=0
+        let pionsEnVieJc : [TPion] = self.joueurCourant.getPionsEnVie()
+        //vérifie si le joueurCourant possède un maitre
+        while indice_cour < pionsEnVieJc.count && pionsEnVieJc[indice_cour].type != "maitre"{
             indice_cour+=1
         }
-        //On vérifie l'état du pion maitre adverse
-        let maitreAdverse : Bool = self.joueurAdverse.getPionsEnVie()[indice_adv].estVivant
         
-        //stocke la position du pion maitre Courant
-        let jcPion:TPion=self.joueurCourant.getPionsEnVie()[indice_cour]
-        let posMaitreJc : TPosition = jcPion.position!
-        // .../ si la position du pion maitre courant est sur la case maitre adverse
-        return  maitreAdverse != true ||  posMaitreJc.coordonnees == self.joueurAdverse.caseMaitre.coordonnees
+        //vérifie si le pions maitre est dans la liste des pions du joueur adverse
+        while indice_adv < pionsEnVieJa.count && pionsEnVieJa[indice_adv].type != "maitre" {
+            indice_adv+=1
+        }
+        if indice_cour<pionsEnVieJc.count && indice_adv<pionsEnVieJa.count{
+            //stocke la position maitre du joueur courant
+            let jcPion:TPion=self.joueurCourant.getPionsEnVie()[indice_cour]
+            let posMaitreJc : TPosition = jcPion.position!
+            // si la position du pion maitre courant est sur la case maitre adverse
+            return posMaitreJc.coordonnees == self.joueurAdverse.caseMaitre.coordonnees
+        }
+        return false
     }
     
     

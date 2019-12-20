@@ -807,7 +807,6 @@ while (!p.finPartie()) {
                 
                 var w : String? = nil
                 while w == nil || w == "" {
-                    print("il faut une valeur entière pour y")
                     w = readLine() ?? ""
                 }
                 // w != nil
@@ -883,6 +882,6 @@ while (!p.finPartie()) {
     //changement du joueur courant
     p.changerJoueur()
 }
-print("La partie est terminée, le gagnant est le joueur de couleur" + (p.aGagne ?? "nil") )
+print("La partie est terminée, le gagnant est le joueur de couleur " + (p.aGagne ?? "nil") )
 
 

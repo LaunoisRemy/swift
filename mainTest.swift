@@ -250,8 +250,12 @@ struct Carte : TCarte {
     func descriptionCarte() -> String{
         
         var pos:String="["
-        for element in self._motif{
-            pos+="("+String(element.0)+","+String(element.1)+"),"
+        for i in 0..<self._motif.count{
+            let element:(Int,Int)=self._motif[i]
+            pos+="("+String(element.0)+","+String(element.1)+")"
+            if i<self._motif.count-1{
+                pos+=","
+            }
         }
         pos+="]"
         return "Ceci est la carte : "+self.nom+"\n Voici les déplacements associés : "+pos
@@ -261,7 +265,7 @@ struct Carte : TCarte {
         var check:Bool=false
         var i:Int=0
         let motif:[(Int,Int)]=self.getMotif()
-        while check==false && i<motif.count{
+        while i<motif.count && check==false{
             let element:(Int,Int)=motif[i]
             if x==element.0 && y==element.1{
                 check=true
@@ -436,6 +440,7 @@ class Partie : TPartie{
     
     
     func finPartie() -> Bool{
+        var res:Bool=false
         var indice_adv:Int=0
         let pionsEnVieJa : [TPion] = self.joueurAdverse.getPionsEnVie()
         
@@ -451,13 +456,21 @@ class Partie : TPartie{
             indice_adv+=1
         }
         if indice_cour<pionsEnVieJc.count && indice_adv<pionsEnVieJa.count{
-            //stocke la position maitre du joueur courant
-            let jcPion:TPion=self.joueurCourant.getPionsEnVie()[indice_cour]
-            let posMaitreJc : TPosition = jcPion.position!
-            // si la position du pion maitre courant est sur la case maitre adverse
-            return posMaitreJc.coordonnees == self.joueurAdverse.caseMaitre.coordonnees
+            //stocke la position maitre de l'ancien joueur courant
+            let jaPion:TPion=self.joueurAdverse.getPionsEnVie()[indice_cour]
+            let posMaitreJa : TPosition = jaPion.position!
+            // test si la position du de l'ancien maitre courant est sur la case maitre adverse
+            if posMaitreJa.coordonnees == self.joueurCourant.caseMaitre.coordonnees{
+                res=true
+            }
         }
-        return false
+        else{
+            res=true
+        }
+        if res{
+            self.aGagne=joueurAdverse.couleur
+        }
+        return res
     }
     
     

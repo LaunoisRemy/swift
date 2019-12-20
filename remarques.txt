@@ -18,3 +18,5 @@ MAIN : le main n'avait pas été modifié au niveau des fonctions qui faisaient 
 
 
 
+aGagné n'est jamais modifié donc le main affiche toujours nil comme joueur gagnant. 
+Il n'est pas spécifé dans finPartie, qu'il faut changé la valeur de aGagné

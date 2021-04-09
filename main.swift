@@ -64,7 +64,7 @@ func afficher( tab : [[String]])  {
 		print(message)
 }
 
-// ============================ Programme principal =================================================
+// ============================ Pro
 // Déroulement du programe principal 
 
 // Initialisation de la partie 

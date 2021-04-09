@@ -1,8 +1,7 @@
 
 /* 
 Spécifications fonctionelles du jeu QUANTIK
-Créateurs : BARBOU Bryan , LAUNOIS Rémy
-Groupe : A06
+
  */
 
 // Jeu est la representation du plateau de jeux
